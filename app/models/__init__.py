@@ -25,7 +25,6 @@ class User(Base):
     team_id = Column(Integer, ForeignKey('teams.id'))
     name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
-    password = Column(String(128), nullable=False)
 
     team = relationship('Team', back_populates='users')
     schedules = relationship('Schedule', back_populates='user')
