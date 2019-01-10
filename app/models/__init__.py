@@ -25,12 +25,22 @@ class User(Base):
     team_id = Column(Integer, ForeignKey('teams.id'))
     name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
+    password_id = Column(Integer, ForeignKey('passwords.id'))
 
+    password = relationship('Password', back_populates='user')
     team = relationship('Team', back_populates='users')
     schedules = relationship('Schedule', back_populates='user')
     
     def __repr__(self):
         return f"<User(id={self.id}, name={self.name}, email={self.email}, team_id={self.team_id})>"
+
+class Password(Base):
+    __tablename__ = 'passwords'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    password_hash = Column(String(255), nullable=False)
+
+    user = relationship('User', back_populates='password')
 
 class Project(Base):
     __tablename__ = 'projects'
@@ -45,6 +55,7 @@ class Project(Base):
         return f"<Project(id={self.id}, name={self.name}, team_id={self.team_id})>"
 
 class Schedule(Base):
+    __tablename__ = 'schedules'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     project_id = Column(Integer, ForeignKey('projects.id'), nullable=False)
