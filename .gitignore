@@ -1,8 +1,9 @@
 
 .vscode/*
-run.bat
 config/*
 !config/sample_config.py
+run.bat
+run.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
