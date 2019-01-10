@@ -1,10 +1,10 @@
 
-import requests
-import os
 from flask import Flask
 
-app = Flask(__name__)
-
-@app.route("/")
-def hello():
-    return "Hello World!"
+def create_app():
+    app = Flask(__name__)
+    app.config.from_envvar('SCHEDULR_SETTINGS')
+    from app.modules import test_module, auth
+    app.register_blueprint(test_module.bp)
+    app.register_blueprint(auth, url_prefix='/auth')
+    return app
