@@ -1,6 +1,6 @@
 config_file=$1
 if [ $1 == ""]; then
-    config_file="$(pwd)/config/sample_config.py"
+    config_file="$(pwd)/config/config.py"
 
 export FLASK_APP=app
 export FLASK_ENV=development
