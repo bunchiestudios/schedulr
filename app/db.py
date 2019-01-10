@@ -13,3 +13,4 @@ def get_session():
         Session = sessionmaker(bind=get_engine())
         g.db_session = Session()
     return g.db_session
+    
