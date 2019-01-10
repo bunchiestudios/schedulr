@@ -2,6 +2,7 @@
 .vscode/*
 run.bat
 config/*
+!config/sample_config.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
