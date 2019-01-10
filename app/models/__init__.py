@@ -3,6 +3,8 @@ from sqlalchemy import Table, Column, Integer, String, Float, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
+from isoweek import Week
+
 Base = declarative_base()
 
 
@@ -54,5 +56,5 @@ class Schedule(Base):
     project = relationship('Project', back_populates="schedules")
     
     def __repr__(self):
-        return f"<Schedule(id={self.id}, user_id={self.user_id}, project_id={self.project_id}, week={self.week})>"
+        return f"<Schedule(id={self.id}, user_id={self.user_id}, project_id={self.project_id}, week={Week.fromordinal(self.week).isoformat()})>"
 
