@@ -1,10 +1,10 @@
-from flask import Blueprint, current_app
-from sqlalchemy import create_engine
+from app import db
+from app import models
+from flask import Blueprint
 
 bp = Blueprint('setup', __name__)
 
 @bp.route('/', methods=['POST'])
 def setup():
-    engine = create_engine(current_app.config['DB_STRING'], echo=False)
-    tables.Base.metadata.create_all(engine)
+    models.Base.metadata.create_all(db.get_engine())
     return "<h1> Created DB successfully! </h1>"
