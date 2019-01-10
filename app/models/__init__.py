@@ -46,6 +46,7 @@ class Project(Base):
         return f"<Project(id={self.id}, name={self.name}, team_id={self.team_id})>"
 
 class Schedule(Base):
+    __tablename__ = 'schedules'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     project_id = Column(Integer, ForeignKey('projects.id'), nullable=False)
