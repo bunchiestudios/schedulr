@@ -1,6 +1,5 @@
 
 .vscode/*
-run.bat
 config/*
 !config/sample_config.py
 
