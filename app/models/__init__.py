@@ -1,5 +1,5 @@
 
-from sqlalchemy import Table, Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Table, Column, Boolean, DateTime, Integer, String, Float, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -25,22 +25,22 @@ class User(Base):
     team_id = Column(Integer, ForeignKey('teams.id'))
     name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
-    password_id = Column(Integer, ForeignKey('passwords.id'))
 
-    password = relationship('Password', back_populates='user')
+    tokens = relationship('Token', back_populates='user')
     team = relationship('Team', back_populates='users')
     schedules = relationship('Schedule', back_populates='user')
     
     def __repr__(self):
         return f"<User(id={self.id}, name={self.name}, email={self.email}, team_id={self.team_id})>"
 
-class Password(Base):
-    __tablename__ = 'passwords'
-    id = Column(Integer, primary_key=True)
+class Token(Base):
+    __tablename__ = 'tokens'
+    token_str = Column(String(255), primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
-    password_hash = Column(String(255), nullable=False)
+    time_created = Column(DateTime, nullable=False)
+    active = Column(Boolean, nullable=False)
 
-    user = relationship('User', back_populates='password')
+    user = relationship('User', back_populates='tokens')
 
 class Project(Base):
     __tablename__ = 'projects'
