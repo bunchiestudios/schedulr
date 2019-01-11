@@ -8,4 +8,11 @@ def get_user_data(token):
     }
     r = requests.get(api_base + 'me', headers=headers)
     r.raise_for_status()
-    return r.json()
+    data = r.json()
+    return {
+        'id': data['id'],
+        'name': data['displayName'],
+        'email': data['userPrincipalName'],
+        'givenName': data['givenName'],
+        'surname': data['surname']
+    }
