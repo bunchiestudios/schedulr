@@ -7,6 +7,14 @@ from isoweek import Week
 
 Base = declarative_base()
 
+user_team_table = Table(
+    'user_team',
+    Base.metadata,
+    Column('user_id', Integer, ForeignKey('users.id')),
+    Column('team_id', Integer, ForeignKey('teams.id')),
+    UniqueConstraint('user_id', name='unique_user'),
+)
+
 
 class Team(Base):
     __tablename__ = 'teams'
@@ -14,30 +22,20 @@ class Team(Base):
     name = Column(String(250), nullable=False)
 
     projects = relationship('Project', back_populates='team')
-    users = relationship('User', back_populates='team')
+    users = relationship('User', secondary=user_team_table)
 
     def __repr__(self):
         return f"<Team(id={self.id}, name={self.name})>"
 
-
-user_token_table = Table(
-    'user_token',
-    Base.metadata,
-    Column('user_id', Integer, ForeignKey('users.id')),
-    Column('token_str', String(255), ForeignKey('tokens.token_str')),
-    UniqueConstraint('token_str', name='unique_tokens'),
-)
-
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    team_id = Column(Integer, ForeignKey('teams.id'))
     name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
 
-    tokens = relationship('Token', secondary=user_token_table)
+    tokens = relationship('Token', back_populates='user')
     team = relationship('Team', back_populates='users')
-    schedules = relationship('Schedule', back_populates='user')
+    schedules = relationship('Schedule', secondary=user_team_table)
     
     def __repr__(self):
         return f"<User(id={self.id}, name={self.name}, email={self.email}, team_id={self.team_id})>"
@@ -45,9 +43,10 @@ class User(Base):
 class Token(Base):
     __tablename__ = 'tokens'
     token_str = Column(String(255), primary_key=True)
+    user_id = Column(Integer, ForeignKey('teams.id'))
     time_created = Column(DateTime, nullable=False)
 
-    user = relationship('User', secondary=user_token_table)
+    user = relationship('User', back_populates='tokens')
 
 class Project(Base):
     __tablename__ = 'projects'
