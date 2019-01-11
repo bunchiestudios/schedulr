@@ -19,7 +19,7 @@ def login():
     if not session.get('schedulr_token'):
         return redirect(url_for('auth.callback'))
     else:
-        redirect('/')
+        return redirect('/')
 
 @bp.route("/msft/callback")
 def callback():
