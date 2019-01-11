@@ -1,5 +1,5 @@
 
-from sqlalchemy import Table, Column, Boolean, DateTime, Integer, String, Float, ForeignKey
+from sqlalchemy import Table, Column, Boolean, DateTime, Integer, String, Float, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -19,6 +19,15 @@ class Team(Base):
     def __repr__(self):
         return f"<Team(id={self.id}, name={self.name})>"
 
+
+user_token_table = Table(
+    'user_token',
+    Base.metadata,
+    Column('user_id', Integer, ForeignKey('users.id')),
+    Column('token_str', String(255), ForeignKey('tokens.token_str')),
+    UniqueConstraint('token_str', name='unique_tokens'),
+)
+
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
@@ -26,7 +35,7 @@ class User(Base):
     name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
 
-    tokens = relationship('Token', back_populates='user')
+    tokens = relationship('Token', secondary=user_token_table)
     team = relationship('Team', back_populates='users')
     schedules = relationship('Schedule', back_populates='user')
     
@@ -36,10 +45,9 @@ class User(Base):
 class Token(Base):
     __tablename__ = 'tokens'
     token_str = Column(String(255), primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
     time_created = Column(DateTime, nullable=False)
 
-    user = relationship('User', back_populates='tokens')
+    user = relationship('User', secondary=user_token_table)
 
 class Project(Base):
     __tablename__ = 'projects'
