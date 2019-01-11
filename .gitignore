@@ -5,6 +5,10 @@ config/*
 run.bat
 run.sh
 
+# sqlite DB's
+*.sqlite
+*.sqlite-journal
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
