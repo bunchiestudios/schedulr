@@ -3,6 +3,8 @@ from sqlalchemy import Table, Column, Boolean, DateTime, Integer, String, Float,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
+import datetime
+
 from isoweek import Week
 
 Base = declarative_base()
@@ -44,7 +46,7 @@ class Token(Base):
     __tablename__ = 'tokens'
     token_str = Column(String(255), primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    time_created = Column(DateTime, nullable=False)
+    timestamp = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
     user = relationship('User', back_populates='tokens')
 
