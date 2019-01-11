@@ -8,6 +8,7 @@ bp = Blueprint('auth', __name__)
 
 from app.helpers import req_helper
 from app.helpers import graph_api_helper
+from app import db
 
 url_auth_base = 'https://login.microsoftonline.com/common/oauth2/v2.0/'
 url_authorize = 'authorize/'
@@ -62,9 +63,13 @@ def callback():
             # TODO: revoke token
 
             # Create a session
-            session['schedulr_token'] = token_urlsafe(128)
+            token = token_urlsafe(128)
+            session['schedulr_token'] = token
 
-            # TODO: check if user in database, if not create it, save token, save user id in cookie for quick lookup in BD?
+            user_id = db.get_or_create_user(name=user_data['name'], email=user_data['email'])
+            db.save_token(user_id=user_id, token=token)
+
+            user_data['token'] = token
 
             #TODO: redirect to main?
             return jsonify(message='Ok', data=user_data)
