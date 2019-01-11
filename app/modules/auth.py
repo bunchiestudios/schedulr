@@ -8,6 +8,7 @@ bp = Blueprint('auth', __name__)
 
 from app.helpers import req_helper
 from app.helpers import graph_api_helper
+from app.helpers import session_helper
 from app import db
 
 url_auth_base = 'https://login.microsoftonline.com/common/oauth2/v2.0/'
@@ -15,12 +16,9 @@ url_authorize = 'authorize/'
 url_token = 'token/'
 
 @bp.route('/login')
+@session_helper.enforce_validate_token
 def login():
-    # TODO: check token is valid, session_helper?
-    if not session.get('schedulr_token'):
-        return redirect(url_for('auth.callback'))
-    else:
-        return redirect('/')
+    return redirect('/')
 
 @bp.route("/msft/callback")
 def callback():
