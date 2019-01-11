@@ -22,6 +22,14 @@ url_token = 'token/'
 def login():
     return redirect('/')
 
+@bp.route('/logout')
+@session_helper.enforce_validate_token
+def logout():
+    token = session_helper.retirieve_token()
+    session_helper.destroy_session()
+    token_util.destroy_token(token)
+    return redirect('/')
+
 @bp.route("/msft/callback")
 def callback():
     code = request.args.get("code")
