@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>{% block name %}{% endblock %} - Schedulr</title>
+        <title>{{title}} - Schedulr</title>
         <!-- Styling - MDL -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.deep_orange-red.min.css" />
@@ -20,12 +20,16 @@
         <header class="mdl-layout__header">
           <div class="mdl-layout__header-row">
             <!-- Title -->
-            <span class="mdl-layout-title">Schedulr</span>
+            <span class="mdl-layout-title">Schedulr | {{title}}</span>
             <!-- Add spacer, to align navigation to the right -->
             <div class="mdl-layout-spacer"></div>
             <!-- Navigation. We hide it in small screens. -->
             <nav class="mdl-navigation mdl-layout--large-screen-only">
-              <a class="mdl-navigation__link" href="">Link</a>
+                {% if g.user %}
+                    <a class="mdl-navigation__link" href="#">{{g.user.name}}</a>
+                {% else %}
+                    <a class="mdl-navigation__link" href="auth/login">Login</a>
+                {% endif %}
               <a class="mdl-navigation__link" href="">Link</a>
               <a class="mdl-navigation__link" href="">Link</a>
               <a class="mdl-navigation__link" href="">Link</a>
