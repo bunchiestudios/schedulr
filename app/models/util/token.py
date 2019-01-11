@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app import db
 
@@ -12,6 +12,33 @@ def save_token(*, user_id: int, token: str) -> bool:
     if not user:
         return False
 
-    session.add(Token(token_str=token, time_created=datetime.utcnow(), user=user))
+    session.add(Token(token_str=token, user=user))
     session.commit()
     return True
+
+def verify_token(token_str: str) -> Token:
+    """Looks for a token string in the database and returns the instance associated with it from the database.
+    If the token was not found returns None.
+    
+    Arguments:
+        token_str {str} -- Token string to verify
+    
+    Returns:
+        Token -- Token 
+    """
+    token = db.get_session().query(Token).filter(Token.token_str == token_str).one_or_none()
+    return None if token is None else token.user
+
+def older_than(*, token: Token, hours: int) -> bool:
+    """Determines whether a tokes is older than a given amount of hours.
+    
+    Arguments:
+        token {Token} -- Token to verify
+        hours {int} -- Hours to verify
+    
+    Returns:
+        bool -- Represents whether or not the token is older than the amount of hours given.
+    """
+    reference_timestamp = datetime.now() - timedelta(hours=hours)
+    return token.timestamp <= reference_timestamp
+
