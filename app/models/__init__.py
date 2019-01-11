@@ -34,8 +34,8 @@ class User(Base):
     email = Column(String(250), nullable=False)
 
     tokens = relationship('Token', back_populates='user')
-    team = relationship('Team', back_populates='users')
-    schedules = relationship('Schedule', secondary=user_team_table)
+    team = relationship('Team', secondary=user_team_table)
+    schedules = relationship('Schedule', back_populates='user')
     
     def __repr__(self):
         return f"<User(id={self.id}, name={self.name}, email={self.email}, team_id={self.team_id})>"
@@ -43,7 +43,7 @@ class User(Base):
 class Token(Base):
     __tablename__ = 'tokens'
     token_str = Column(String(255), primary_key=True)
-    user_id = Column(Integer, ForeignKey('teams.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
     time_created = Column(DateTime, nullable=False)
 
     user = relationship('User', back_populates='tokens')
