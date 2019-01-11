@@ -38,7 +38,6 @@ class Token(Base):
     token_str = Column(String(255), primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
     time_created = Column(DateTime, nullable=False)
-    active = Column(Boolean, nullable=False)
 
     user = relationship('User', back_populates='tokens')
 
