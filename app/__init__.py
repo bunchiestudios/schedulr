@@ -14,7 +14,7 @@ def create_app():
 
     # Setup blueprints
     from app.modules import test_module, auth, setup
-    flapp.register_blueprint(test_module.bp)
+    flapp.register_blueprint(test_module.bp, url_prefix='/test')
     flapp.register_blueprint(auth.bp, url_prefix='/auth')
     flapp.register_blueprint(setup.bp, url_prefix='/setup')
 
