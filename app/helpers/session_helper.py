@@ -4,7 +4,7 @@ from flask import session, url_for, redirect, abort, make_response, jsonify, cur
 from app.models.util import token as token_utils
 from app.models.util import user as user_utils
 
-from app.models import User
+from app.models import User, Token
 
 session_key = 'schedulr_token'
 
@@ -84,3 +84,9 @@ def get_logged_in_user() -> User:
         return user
     else:
         return None
+
+def retirieve_token() -> Token:
+    return token_utils.verify_token(session[session_key])
+
+def destroy_session():
+    session.clear()
