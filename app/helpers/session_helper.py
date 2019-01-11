@@ -50,6 +50,21 @@ def enforce_validate_token(method):
 def enforce_validate_token_api(method):
     return __make_wrapper(method, 'error')
 
+def load_user_if_logged_in(method):
+    """Decorator: stores the user, if any, un g.user
+    
+    Arguments:
+        method {func} -- Function to decorate
+    
+    Returns:
+        func -- Decorated function.
+    """
+
+    def wrapper(*args, **kwargs):
+        get_logged_in_user()
+        return method(*args, **kwargs)
+    return wrapper
+
 
 def get_logged_in_user() -> User:
     if session_key in session:
