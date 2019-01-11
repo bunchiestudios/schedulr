@@ -79,7 +79,6 @@ def callback():
 
             user_data['token'] = token
 
-            #TODO: redirect to main?
-            return jsonify(message='Ok', data=user_data)
+            return redirect('/')
 
     
