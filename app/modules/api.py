@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, Response
+from flask import Blueprint, request, jsonify, Response, g
 import json
 
 from app import db
@@ -67,24 +67,57 @@ def team_get(team_id):
                 "name": team.name,
                 "team_members": [user.id for user in team.users],
                 "projects": [project.id for project in team.projects],
+                "owner_id": team.owner.id,
             }
         )
 
     return error_helpers.item_not_found("team", "id", str(team_id))
 
+
+@bp.route('/team/<int:team_id>/owner', methods=['POST'])
+@session_helper.enforce_validate_token_api
+def team_transfer_owner(team_id):
+    team = team_util.get_from_id(team_id)
+    owner_id = request.args['owner_id']
+
+    if not team:
+        return error_helpers.item_not_found("team", "id", str(team_id))
+
+    if team.owner.id != g.user.id:
+        return error_helpers.not_authorized()
+
+    team = team_util.set_owner(team.id, owner_id)
+
+    if team:
+        return jsonify(
+            {
+                "id": team.id,
+                "name": team.name,
+                "team_members": [user.id for user in team.users],
+                "projects": [project.id for project in team.projects],
+                "owner_id": team.owner.id,
+            }
+        )
+
+
 @bp.route('/team', methods=['POST'])
 @session_helper.enforce_validate_token_api
 def team_create():
-    team = team_util.create(request.args['name'])
+    team = team_util.create(request.args['name'], g.user.id)
 
-    return jsonify(
-        {
-            "id": team.id,
-            "name": team.name,
-            "team_members": [user.id for user in team.users],
-            "projects": [project.id for project in team.projects],
-        }
-    )
+    if team:
+        return jsonify(
+            {
+                "id": team.id,
+                "name": team.name,
+                "team_members": [user.id for user in team.users],
+                "projects": [project.id for project in team.projects],
+                "owner_id": team.owner.id,
+            }
+        )
+
+    return error_helpers.item_not_found("user", "id", str(g.user.id))
+
 
 @bp.route('/user/team', methods=['POST'])
 @session_helper.enforce_validate_token_api

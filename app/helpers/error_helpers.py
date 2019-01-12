@@ -47,3 +47,15 @@ def could_not_create(item_name: str) -> Response:
         status=400,
         mimetype="application/json",
     )
+
+def not_authorized() -> Response:
+    return Response(
+        jsonify(
+            {
+                "error": {
+                    "code": 4,
+                    "msg": "You are not authorized to perform this operation."
+                }
+            }
+        )
+    )
