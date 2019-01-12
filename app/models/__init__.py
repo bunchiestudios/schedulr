@@ -1,4 +1,6 @@
 
+from typing import Optional
+
 from sqlalchemy import Table, Column, Boolean, DateTime, Integer, String, Float, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -24,7 +26,7 @@ class Team(Base):
     name = Column(String(250), nullable=False)
 
     projects = relationship('Project', back_populates='team')
-    users = relationship('User', secondary=user_team_table)
+    users = relationship('User', secondary=user_team_table, back_populates='_teams')
 
     def __repr__(self):
         return f"<Team(id={self.id}, name={self.name})>"
@@ -36,8 +38,15 @@ class User(Base):
     email = Column(String(250), nullable=False)
 
     tokens = relationship('Token', back_populates='user')
-    team = relationship('Team', secondary=user_team_table)
+    _teams = relationship('Team', secondary=user_team_table, back_populates='users')
     schedules = relationship('Schedule', back_populates='user')
+
+    @property
+    def team(self) -> Optional[Team]:
+        """
+        This is a read-only property. Do not UNDER ANY CIRCUMSTANCES attempt to set this.
+        """
+        return self._teams[0] if self._teams else None
     
     def __repr__(self):
         return f"<User(id={self.id}, name={self.name}, email={self.email}, team_id={self.team_id})>"
