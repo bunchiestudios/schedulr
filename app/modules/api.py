@@ -24,6 +24,19 @@ def project_get(project_id):
         )
     return error_helpers.item_not_found("project", "id", str(project_id))
 
+@bp.route('/project', methods=['POST'])
+@session_helper.enforce_validate_token_api
+def project_post():
+    name = request.args['name']
+    team_id = request.args['team_id']
+
+    project = project_util.add_project(name, team_id)
+    if project:
+        return jsonify(
+            {"id": project.id, "team_id": project.team_id, "name": project.name}
+        )
+    return error_helpers.could_not_create("project")
+
 
 @bp.route('/user/<int:user_id>', methods=['GET'])
 @session_helper.enforce_validate_token_api
