@@ -24,7 +24,7 @@ class Team(Base):
     name = Column(String(250), nullable=False)
 
     projects = relationship('Project', back_populates='team')
-    users = relationship('User', secondary=user_team_table)
+    users = relationship('User', secondary=user_team_table, back_populates='teams')
 
     def __repr__(self):
         return f"<Team(id={self.id}, name={self.name})>"
@@ -36,7 +36,7 @@ class User(Base):
     email = Column(String(250), nullable=False)
 
     tokens = relationship('Token', back_populates='user')
-    team = relationship('Team', secondary=user_team_table)
+    teams = relationship('Team', secondary=user_team_table, back_populates='users')
     schedules = relationship('Schedule', back_populates='user')
     
     def __repr__(self):
