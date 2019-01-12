@@ -8,11 +8,8 @@ from app.models.util import user as user_utils
 
 from app.models import User, Token
 
-# A key to store the token in se session dict
-session_key = 'schedulr_token'
-
 def get_session_token_key():
-    return session_key
+    return 'schedulr_token'
 
 def session_token_exists():
     return get_session_token_key() in session
