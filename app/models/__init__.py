@@ -26,7 +26,7 @@ class Team(Base):
     name = Column(String(250), nullable=False)
 
     projects = relationship('Project', back_populates='team')
-    users = relationship('User', secondary=user_team_table, back_populates='teams')
+    users = relationship('User', secondary=user_team_table, back_populates='_teams')
 
     def __repr__(self):
         return f"<Team(id={self.id}, name={self.name})>"
