@@ -1,7 +1,7 @@
 from typing import Optional
 
 from app import db
-from app.models import User, Token
+from app.models import User, Team, Token
 
 def get_or_create_user(*, name: str, email: str) -> User:
     session = db.get_session()
@@ -20,3 +20,16 @@ def get_from_token(token: Token) -> User:
 def get_from_id(user_id: int) -> Optional[User]:
     session = db.get_session()
     return session.query(User).filter(User.id == user_id).one_or_none()
+
+def set_team(user_id: int, team_id: int) -> Optional[User]:
+    session = db.get_session()
+    user = session.query(User).filter(User.id == user_id).one_or_none()
+    team = session.query(Team).filter(Team.id == team_id).one_or_none()
+
+    if not user or not team:
+        return None
+
+    user.team = team
+    session.commit()
+
+    return user
