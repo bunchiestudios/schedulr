@@ -13,11 +13,12 @@ def create_app():
     flapp.db_Session = sessionmaker(bind=flapp.db_engine)
 
     # Setup blueprints
-    from app.modules import test_module, auth, setup, home, team
+    from app.modules import test_module, auth, setup, api, home, team
     flapp.register_blueprint(test_module.bp, url_prefix='/test')
     flapp.register_blueprint(setup.bp, url_prefix='/setup')
     flapp.register_blueprint(auth.bp, url_prefix='/auth')
     flapp.register_blueprint(team.bp, url_prefix='/team')
+    flapp.register_blueprint(api.bp, url_prefix='/api')
     flapp.register_blueprint(home.bp, url_prefix='/')
 
     return flapp

@@ -34,7 +34,6 @@ def logout():
 def callback():
     code = request.args.get("code")
     error = request.args.get("error")
-    print('HELLO')
     if error:
         # TODO: render something here?
         return "Login Error"
