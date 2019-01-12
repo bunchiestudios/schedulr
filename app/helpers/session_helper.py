@@ -18,6 +18,8 @@ def get_session_token():
     return session[get_session_token_key()]
 
 def get_logged_in_user() -> User:
+    from flask import g
+    g.setdefault('user', None)
     if session_token_exists():
         token_str = get_session_token()
         token = token_utils.verify_token(token_str)
@@ -30,7 +32,6 @@ def get_logged_in_user() -> User:
         if user is None:
             token_utils.destroy_token(token)
             return None
-        from flask import g
         g.user = user
         return user
     else:
