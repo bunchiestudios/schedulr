@@ -29,7 +29,7 @@ def set_team(user_id: int, team_id: int) -> Optional[User]:
     if not user or not team:
         return None
 
-    user.team = team
+    user._teams = [team]
     session.commit()
 
     return user
