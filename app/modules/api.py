@@ -49,7 +49,7 @@ def user_get(user_id):
                 "id": user.id,
                 "name": user.name,
                 "email": user.email,
-                "team_id": user.team.id,
+                "team_id": user.team.id if user.team else None,
             }
         )
 
