@@ -8,14 +8,21 @@ from app.models.util import user as user_utils
 
 from app.models import User, Token
 
+# A key to store the token in se session dict
 session_key = 'schedulr_token'
 
 def get_session_token_key():
     return session_key
 
+def session_token_exists():
+    return get_session_token_key() in session
+
+def get_session_token():
+    return session[get_session_token_key()]
+
 def get_logged_in_user() -> User:
-    if session_key in session:
-        token_str = session[session_key]
+    if session_token_exists():
+        token_str = get_session_token()
         token = token_utils.verify_token(token_str)
         if token is None:
             return None
@@ -47,8 +54,8 @@ def __make_wrapper(method, action):
     on_failure = __make_on_failure(action)
     @wraps(method)
     def wrapper(*args, **kwargs):
-        if session_key in session:
-            token_str = session[session_key]
+        if session_token_exists():
+            token_str = get_session_token()
             token = token_utils.verify_token(token_str)
             if token is None:
                 return on_failure(401, "Token is invalid!")
@@ -88,7 +95,7 @@ def load_user_if_logged_in(method):
     return wrapper
 
 def retirieve_token() -> Token:
-    return token_utils.verify_token(session[session_key])
+    return token_utils.verify_token(get_session_token())
 
 def destroy_session():
     session.clear()
