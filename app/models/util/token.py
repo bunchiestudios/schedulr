@@ -27,7 +27,7 @@ def verify_token(token_str: str) -> Token:
         Token -- Token 
     """
     token = db.get_session().query(Token).filter(Token.token_str == token_str).one_or_none()
-    return None if token is None else token.user
+    return token
 
 def older_than(*, token: Token, hours: int) -> bool:
     """Determines whether a tokes is older than a given amount of hours.
@@ -41,4 +41,11 @@ def older_than(*, token: Token, hours: int) -> bool:
     """
     reference_timestamp = datetime.now() - timedelta(hours=hours)
     return token.timestamp <= reference_timestamp
+
+def destroy_token(token: Token) -> None:
+    session = db.get_session()
+    session.delete(token)
+    session.commit()
+    
+
 
