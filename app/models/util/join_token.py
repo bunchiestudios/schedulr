@@ -3,6 +3,21 @@ from typing import Optional
 from app import db
 from app.models import JoinToken, Team
 
+
+def team_by_join_token(join_token_str: str) -> Optional[Team]:
+    """
+    Returns the team associated with a given join token.
+    :param join_token_str: The join token to search over
+    :return: Returns a Team if the join token exists, or None otherwise
+    """
+    session = db.get_session()
+    join_token = session.query(JoinToken).filter(JoinToken.token_str == join_token_str).one_or_none()
+    if not join_token:
+        return None
+
+    return join_token.team
+
+
 def by_team_id(team_id: int) -> Optional[JoinToken]:
     """
     Returns existing join token for a given team.
