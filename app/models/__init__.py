@@ -61,6 +61,15 @@ class JoinToken(Base):
 
     team = relationship('Team', back_populates='join_tokens')
 
+    def __repr__(self):
+        return f'<JoinToken(token_str="{self.token_str}, team_id={self.team_id})>"'
+
+    def serialize(self):
+        return {
+            "token": self.token_str,
+            "team_id": self.team.id if self.team else None,
+        }
+
 class Token(Base):
     __tablename__ = 'tokens'
     token_str = Column(String(255), primary_key=True)

@@ -144,14 +144,20 @@ def get_join_token(team_id):
         if not join_token:
             return error_helpers.item_not_found("team", "id", str(team_id))
 
-    return jsonify(
-        {"join_token": join_token.token_str, "team_id": join_token.team.id}
-    )
+    return jsonify(join_token.serialize())
 
 
 @bp.route('/user/team', methods=['POST'])
 @session_helper.enforce_validate_token_api
 def set_team():
+    join_token = join_token_util.by_team_id(request.args['team_id'])
+    
+    if not join_token:
+        return error_helpers.item_not_found('join_token', 'team_id', request.args['team_id'])
+
+    if join_token.token_str != request.args['join_token']:
+        return error_helpers.invalid_join_token()
+
     user = user_util.set_team(request.args['user_id'], request.args['team_id'])
 
     if user:

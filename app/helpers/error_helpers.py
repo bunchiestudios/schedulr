@@ -57,5 +57,22 @@ def not_authorized() -> Response:
                     "msg": "You are not authorized to perform this operation."
                 }
             }
-        )
+        ),
+        status=403,
+        mimetype="application/json",
+    )
+
+
+def invalid_join_token() -> Response:
+    return Response(
+        jsonify(
+            {
+                "error": {
+                    "code": 5,
+                    "msg": "The join token provided is invalid."
+                }
+            }
+        ),
+        status=403,
+        mimetype="application/json",
     )
