@@ -31,7 +31,14 @@ def user_get(user_id):
     user = user_util.get_from_id(user_id)
 
     if user:
-        return jsonify({"id": user.id, "name": user.name, "email": user.email})
+        return jsonify(
+            {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "team_id": user.team.id,
+            }
+        )
 
     return error_helpers.item_not_found("user", "id", str(user_id))
 
