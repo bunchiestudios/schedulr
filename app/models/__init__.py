@@ -24,9 +24,11 @@ class Team(Base):
     __tablename__ = 'teams'
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
+    owner_id = Column(Integer, ForeignKey('users.id'))
 
     projects = relationship('Project', back_populates='team')
     users = relationship('User', secondary=user_team_table, back_populates='_teams')
+    owner = relationship('User', foreign_keys=[owner_id])
 
     def __repr__(self):
         return f"<Team(id={self.id}, name={self.name})>"
