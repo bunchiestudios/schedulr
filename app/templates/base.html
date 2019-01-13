@@ -19,6 +19,8 @@
         <!-- Custom styles -->
         <link rel="stylesheet" href="static/css/main.css">
 
+        <script src="static/js/common.js"></script>
+
     </head>
     <body>
         <!-- Always shows a header, even in smaller screens. -->
@@ -33,7 +35,7 @@
                     <nav class="mdl-navigation mdl-layout--large-screen-only">
                         {% if g.user %}
                             <a class="mdl-navigation__link" href="#">{{g.user.name}}</a>
-                            <a class="mdl-navigation__link" href="auth/logout">Logout</a>
+                            <a class="mdl-navigation__link" id="logout">Logout</a>
                         {% else %}
                             <a class="mdl-navigation__link" href="auth/login">Login</a>
                         {% endif %}
@@ -54,6 +56,10 @@
             <main class="mdl-layout__content">
             <div class="page-content"><!-- Your content goes here --></div>
             </main>
+        </div>
+        <div id="page-toast-container" class="mdl-js-snackbar mdl-snackbar">
+            <div class="mdl-snackbar__text"></div>
+            <button class="mdl-snackbar__action" type="button"></button>
         </div>
     </body>
 </html>

@@ -22,13 +22,16 @@ url_token = 'token/'
 def login():
     return redirect('/')
 
-@bp.route('/logout')
+@bp.route('/logout', methods=['GET', 'POST'])
 @session_helper.enforce_validate_token
 def logout():
     token = session_helper.retirieve_token()
     session_helper.destroy_session()
     token_util.destroy_token(token)
-    return redirect('/')
+    if request.method == 'GET':
+        return redirect('/')
+    elif request.method == 'POST':
+        return jsonify(error=0, message="You logged out!")
 
 @bp.route("/msft/callback")
 def callback():
