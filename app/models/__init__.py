@@ -29,6 +29,7 @@ class Team(Base):
     projects = relationship('Project', back_populates='team')
     users = relationship('User', secondary=user_team_table, back_populates='_teams')
     owner = relationship('User', foreign_keys=[owner_id])
+    join_tokens = relationship('JoinToken', back_populates='team')
 
     def __repr__(self):
         return f"<Team(id={self.id}, name={self.name})>"
@@ -52,6 +53,22 @@ class User(Base):
     
     def __repr__(self):
         return f"<User(id={self.id}, name={self.name}, email={self.email}, team_id={self.team_id})>"
+
+class JoinToken(Base):
+    __tablename__ = 'join_token'
+    token_str = Column(String(255), primary_key=True)
+    team_id = Column(Integer, ForeignKey('teams.id'))
+
+    team = relationship('Team', back_populates='join_tokens')
+
+    def __repr__(self):
+        return f'<JoinToken(token_str="{self.token_str}, team_id={self.team_id})>"'
+
+    def serialize(self):
+        return {
+            "token": self.token_str,
+            "team_id": self.team.id if self.team else None,
+        }
 
 class Token(Base):
     __tablename__ = 'tokens'
