@@ -1,0 +1,30 @@
+{% extends "base.html" %} {% block content %}
+<div class="card-container">
+    {% for card in cards %}
+        <div class="main-card mdl-card mdl-shadow--2dp">
+            <div class="mdl-card__title">
+                <h2 class="mdl-card__title-text">{{card.title}} {% if card.icon %} <span class="card-icon">{{card.icon|safe}}{% endif %}</span></h2>
+            </div>
+            <div class="mdl-card__supporting-text" {% if card.id %} id="{{card.id}}" {% endif %}>
+                {% if card.loading %}
+                    <div id="{{card.loading}}" class="mdl-progress mdl-js-progress mdl-progress__indeterminate progress-full"></div>
+                {% endif %}
+                {% if card.text is not string and card.text is iterable %}
+                    {% for card_text in card.text %}
+                        <div>{{card_text}}</div>
+                    {% endfor%}
+                {% else %}
+                    {{card.text}}
+                {% endif %}
+            </div>
+            {% if card.link %}
+                <div class="mdl-card__actions mdl-card--border">
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="{{card.link.href}}">
+                        {{card.link.text}}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

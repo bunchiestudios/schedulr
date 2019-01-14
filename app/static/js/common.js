@@ -1,6 +1,7 @@
 
 
 let APP = {
+    modules: [],
     init: function(){
         this.snackbarContainer = document.querySelector('#page-toast-container');
     },
@@ -9,10 +10,17 @@ let APP = {
     },
     toast: function(text){
         this.snackbarContainer.MaterialSnackbar.showSnackbar({message: text});
+    },
+    register_module: function(callback){
+        this.modules.push(callback);
+    },
+    init: function(){
+        this.modules.forEach(element => element());
     }
 };
 
 $(document).ready(function() {
+    APP.init();
     $('#logout').on('click', ()=>{
         $.ajax({
             url: "/auth/logout",

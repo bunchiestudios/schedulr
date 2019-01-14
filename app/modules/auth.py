@@ -1,5 +1,5 @@
 import requests
-from flask import Blueprint, session, current_app, abort, jsonify, make_response, redirect, request, url_for
+from flask import Blueprint, session, current_app, abort, jsonify, make_response, redirect, request, url_for, render_template
 
 import urllib.parse as urlparse
 from secrets import token_urlsafe
@@ -16,6 +16,23 @@ from app.models.util import user  as user_util
 url_auth_base = 'https://login.microsoftonline.com/common/oauth2/v2.0/'
 url_authorize = 'authorize/'
 url_token = 'token/'
+
+@bp.route('/login-notice')
+def login_notice():
+    return render_template('card.html', title="Login Notice!", cards=[
+            {
+                'title': "You must be logged in to do this!",
+                'text': [
+                    'Please Log In and try again.',
+                    'By logging in you agree to have cookies stored in your computer and for us to store basic personal information.'
+                ],
+                'icon': '<i class="fas fa-sign-in-alt"></i>',
+                'link': {
+                    'text': 'Click Here to Log In',
+                    'href': url_for('auth.login')
+                }
+            },
+        ])
 
 @bp.route('/login')
 @session_helper.enforce_validate_token
