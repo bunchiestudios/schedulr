@@ -5,6 +5,7 @@
             <h2 class="mdl-card__title-text">{{form.title}} {% if form.icon %} <span class="card-icon"><i class="fas {{form.icon}}"></i></span>{% endif %}</h2>
         </div>
         <div class="mdl-card__supporting-text">
+            <div id="form-error" class="something-bad"></div>
             <form id="{{form.id}}">
                 {% for item in form.inputs %}
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">

@@ -13,7 +13,9 @@ bp = Blueprint('team', __name__)
 @bp.route('/')
 @session_helper.enforce_validate_token
 def root():
-    return 'Hi'
+    if not g.user.team:
+        return redirect(url_for('team.join'))
+    return render_template("card.html", title=g.user.team.name)
 
 @bp.route('/join', strict_slashes=False)
 @session_helper.enforce_validate_token
@@ -35,6 +37,7 @@ def join():
     ])
 
 @bp.route('/create')
+@session_helper.enforce_validate_token
 def create():
     return render_template('form.html', title='Create a team', form={
         'title': 'Create a new team!',
@@ -90,5 +93,3 @@ def join_link(code):
                 )
     else:
         return redirect(url_for('auth.login_notice'))
-
-# @bp.route('create')

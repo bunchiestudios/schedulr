@@ -36,8 +36,8 @@
                     <!-- Navigation. We hide it in small screens. -->
                     <nav class="mdl-navigation mdl-layout--large-screen-only">
                         {% if g.user %}
-                            <a class="mdl-navigation__link" href="#">{{g.user.name}}</a>
-                            <a class="mdl-navigation__link" id="logout">Logout</a>
+                            <a class="mdl-navigation__link" >{{g.user.name}}</a>
+                            <a class="mdl-navigation__link" id="logout" href="#">Logout</a>
                         {% else %}
                             <a class="mdl-navigation__link" href="auth/login">Login</a>
                         {% endif %}

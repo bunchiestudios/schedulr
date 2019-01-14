@@ -13,6 +13,8 @@ from app.models.util import (
     join_token as join_token_util
 )
 
+from app.helpers import req_helper
+
 
 bp = Blueprint('api', __name__)
 
@@ -106,7 +108,10 @@ def team_transfer_owner(team_id):
 @bp.route('/team', methods=['POST'])
 @session_helper.enforce_validate_token_api
 def team_create():
-    team = team_util.create(request.args['name'], g.user.id)
+    print("HEREEEEE")
+    data = req_helper.force_json_key_list('name')
+    print(data)
+    team = team_util.create(data['name'], g.user.id)
 
     if team:
         return jsonify(

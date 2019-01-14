@@ -46,3 +46,8 @@
 .card-icon {
     margin-left: 15px;
 }
+
+.something-bad {
+    color: #B00020;
+    font-style: italic;
+}
