@@ -41,7 +41,7 @@ def login():
     if g.user:
         return redirect('/')
     else:
-        return render_template('login.html')
+        return render_template('login.html', title="Login")
 
 @bp.route('/logout', methods=['GET', 'POST'])
 @session_helper.enforce_validate_token
