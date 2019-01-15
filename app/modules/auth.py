@@ -1,5 +1,5 @@
 import requests
-from flask import Blueprint, session, current_app, abort, jsonify, make_response, redirect, request, url_for, render_template
+from flask import Blueprint, session, current_app, abort, jsonify, make_response, redirect, request, url_for, render_template, g
 
 import urllib.parse as urlparse
 from secrets import token_urlsafe
@@ -35,9 +35,13 @@ def login_notice():
         ])
 
 @bp.route('/login')
-@session_helper.enforce_validate_token
+# @session_helper.enforce_validate_token
+@session_helper.load_user_if_logged_in
 def login():
-    return redirect('/')
+    if g.user:
+        return redirect('/')
+    else:
+        return render_template('login.html')
 
 @bp.route('/logout', methods=['GET', 'POST'])
 @session_helper.enforce_validate_token

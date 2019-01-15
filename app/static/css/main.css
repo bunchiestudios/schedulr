@@ -51,3 +51,43 @@
     color: #B00020;
     font-style: italic;
 }
+
+.login-card {
+    max-width: 500px;
+}
+
+.login-card > .mdl-card__title {
+    font-size: 2em;
+    text-align: center;
+    display: block;
+}
+
+.login-button {
+    margin-left: auto;
+    margin-right: auto;
+    width: 250px;
+    margin-bottom: 15px;
+    height: 60px;
+    cursor: pointer;
+    display: block;
+}
+
+#msft-login {
+    background: url('/static/logos/ms-symbollockup_signin_light.svg') no-repeat;
+    background-size: contain;
+}
+
+#msft-login:active {
+    background: url('/static/logos/ms-symbollockup_signin_light_pressed.svg') no-repeat;
+    background-size: contain;
+}
+
+#google-login {
+    background: url('/static/logos/btn_google_signin_light_normal_web@2x.png') no-repeat;
+    background-size: contain;
+}
+#google-login:active {
+    background: url('/static/logos/btn_google_signin_light_pressed_web@2x.png') no-repeat;
+    background-size: contain;
+}
+

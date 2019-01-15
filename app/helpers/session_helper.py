@@ -45,7 +45,7 @@ def __make_on_failure(action):
         return error_result
     elif action == 'redirect':
         def redirect_result(code, message):
-            return redirect(url_for('auth.callback'))
+            return redirect(url_for('auth.login'))
         return redirect_result
 
 def __make_wrapper(method, action):
