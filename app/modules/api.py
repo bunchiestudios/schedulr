@@ -108,9 +108,7 @@ def team_transfer_owner(team_id):
 @bp.route('/team', methods=['POST'])
 @session_helper.enforce_validate_token_api
 def team_create():
-    print("HEREEEEE")
     data = req_helper.force_json_key_list('name')
-    print(data)
     team = team_util.create(data['name'], g.user.id)
 
     if team:
