@@ -1,10 +1,15 @@
+from functools import wraps
+
 from flask import request, abort, current_app, make_response, jsonify
 
-def force_json_key_list(*args):
-    data = request.json
-    if data is None:
-        abort(make_response(jsonify(message="No JSON provided!"), 400))
-    for arg in args:
-        if arg not in data:
-            abort(make_response(jsonify(message="Missing data!", debug=f"Key not found: '{arg}'"), 400))
-    return data
+from app.helpers import api_error_helpers
+
+def api_check_json(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        data = request.json
+        if data is None:
+            abort(api_error_helpers.is_not_json())
+        return func(json_content=data, *args, **kwargs)
+
+    return wrapper

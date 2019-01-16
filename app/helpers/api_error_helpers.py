@@ -76,3 +76,17 @@ def invalid_join_token() -> Response:
         status=403,
         mimetype="application/json",
     )
+
+def is_not_json() -> Response:
+    return Response(
+        jsonify(
+            {
+                "error": {
+                    "code": 6,
+                    "msg": "The request does not contain a JSON body."
+                }
+            }
+        ),
+        status=400,
+        mimetype="application/json"
+    )
