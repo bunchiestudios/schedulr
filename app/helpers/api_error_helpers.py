@@ -90,3 +90,17 @@ def is_not_json() -> Response:
         status=400,
         mimetype="application/json"
     )
+
+def bad_body_arg() -> Response:
+    return Response(
+        jsonify(
+            {
+                "error": {
+                    "code": 7,
+                    "msg": "Your request JSON body contains invalid data."
+                }
+            }
+        ),
+        status=400,
+        mimetype="application/json"
+    )
