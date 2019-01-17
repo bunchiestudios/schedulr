@@ -1,6 +1,6 @@
 
 from functools import wraps
-
+from secrets import token_urlsafe
 from flask import session, url_for, redirect, abort, make_response, jsonify, current_app
 
 from app.models.util import token as token_utils
@@ -16,6 +16,12 @@ def session_token_exists():
 
 def get_session_token():
     return session[get_session_token_key()]
+
+def make_session(*, user: User):
+    token = token_urlsafe(128)
+    session[get_session_token_key()] = token
+    token_utils.save_token(user_id=user.id, token=token)
+
 
 def get_logged_in_user() -> User:
     from flask import g

@@ -18,4 +18,4 @@ APP.register_module(function(){
             console.log(textStatus, errorThrown);
         })
     });
-})
+});

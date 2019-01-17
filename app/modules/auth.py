@@ -2,20 +2,18 @@ import requests
 from flask import Blueprint, session, current_app, abort, jsonify, make_response, redirect, request, url_for, render_template, g
 
 import urllib.parse as urlparse
-from secrets import token_urlsafe
 
 bp = Blueprint('auth', __name__)
 
 from app.helpers import req_helper
 from app.helpers import graph_api_helper
 from app.helpers import session_helper
+from app.helpers import oauth_helper
+from app.helpers import google_api_helper
 
-from app.models.util import token as token_util
 from app.models.util import user  as user_util
+from app.models.util import token as token_util
 
-url_auth_base = 'https://login.microsoftonline.com/common/oauth2/v2.0/'
-url_authorize = 'authorize/'
-url_token = 'token/'
 
 @bp.route('/login-notice')
 def login_notice():
@@ -41,7 +39,7 @@ def login():
     if g.user:
         return redirect('/')
     else:
-        return render_template('login.html', title="Login")
+        return render_template('login.html', title="Login", script="login.js")
 
 @bp.route('/logout', methods=['GET', 'POST'])
 @session_helper.enforce_validate_token
@@ -55,53 +53,60 @@ def logout():
         return jsonify(error=0, message="You logged out!")
 
 @bp.route("/msft/callback")
-def callback():
+def msft_callback():
     code = request.args.get("code")
     error = request.args.get("error")
     if error:
         # TODO: render something here?
         return "Login Error"
+    oauth_client = oauth_helper.get_oauth_client_msft()
     if not code:
-        # No code, therefore redirect to authorization url
-        params = {
-            'client_id': current_app.config['MSFT_APP_ID'],
-            'redirect_uri': request.base_url,
-            'response_type': 'code',
-            'response_mode': 'query',
-            'scope': 'openid User.Read'
-        }
-        return redirect(url_auth_base + url_authorize + '?' + urlparse.urlencode(params))
+        # Make a Msft oauth client and redirect to auth url
+        return redirect(oauth_client.get_authorization_url())
     else:
-        r = requests.post(url_auth_base + url_token, data={
-            'client_id': current_app.config['MSFT_APP_ID'],
-            'client_secret': current_app.config['MSFT_APP_SECRET'],
-            'grant_type':'authorization_code',
-            'code': code,
-            'redirect_uri': request.base_url
-        })
-        if r.status_code is not 200:
-            # Code failed to retrieve token
-            # TODO: Render something here?
+        try:
+            access_token = oauth_client.request_token(code=code)
+        except:
             abort(make_response(jsonify(message="Invalid code!"), 401))
-        else:
-            # Token is valid -> good login
-            # Extract token
-            data = r.json()
-            access_token = data.get("access_token")
 
+        # Retrieve user data from graph API
+        user_data = graph_api_helper.get_user_data(access_token)
+        # TODO: revoke token
+
+        # Makes or gets user with received data
+        user = user_util.get_or_create_user(name=user_data['name'], email=user_data['email'])
+
+        # Create session tied to this user
+        session_helper.make_session(user=user)
+        return redirect('/')
+
+@bp.route("/google/callback")
+def google_callback():
+    code = request.args.get("code")
+    error = request.args.get("error")
+    if error:
+        # TODO: render something here?
+        return "Login Error"
+    oauth_client = oauth_helper.get_oauth_client_google()
+    if not code:
+        # redirect to auth url
+        return redirect(oauth_client.get_authorization_url())
+    else:
+        try:
+            access_token = oauth_client.request_token(code=code)
             # Retrieve user data from graph API
-            user_data = graph_api_helper.get_user_data(access_token)
-            # TODO: revoke token
+        except:
+            abort(make_response(jsonify(message="Invalid code!"), 401))
+        
+        user_data = google_api_helper.get_user_data(access_token)
+        # TODO: revoke token
 
-            # Create a session
-            token = token_urlsafe(128)
-            session['schedulr_token'] = token
+        # Makes or gets user with received data
+        user = user_util.get_or_create_user(name=user_data['name'], email=user_data['email'])
 
-            user = user_util.get_or_create_user(name=user_data['name'], email=user_data['email'])
-            token_util.save_token(user_id=user.id, token=token)
-
-            user_data['token'] = token
-
-            return redirect('/')
+        # Create session tied to this user
+        session_helper.make_session(user=user)
+        return redirect('/')
+        
 
     
