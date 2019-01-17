@@ -61,7 +61,7 @@ def join_link(code):
             return render_template('card.html', title='Join a team!', cards=[
                 {
                     'title': 'You already have a team.',
-                    'text': 'Joining multiple teams is not supported yet, sorry <i class="far fa-frown"></i>',
+                    'text': 'Joining multiple teams is not supported yet, sorry. <i class="far fa-frown"></i>',
                     'link': {
                         'text': 'Click here to go back to your own team',
                         'href': url_for('team.root')

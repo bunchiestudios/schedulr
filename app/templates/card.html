@@ -12,10 +12,10 @@
                 {% endif %}
                 {% if card.text is not string and card.text is iterable %}
                     {% for card_text in card.text %}
-                        <div>{{card_text}}</div>
+                        <div>{{card_text|safe}}</div>
                     {% endfor%}
                 {% else %}
-                    {{card.text}}
+                    {{card.text|safe}}
                 {% endif %}
             </div>
             {% if card.link %}
