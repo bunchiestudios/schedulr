@@ -27,8 +27,8 @@ def project_get(project_id):
         )
     return api_error_helpers.item_not_found("project", "id", str(project_id))
 
-@req_helper.api_check_json("name", "team_id")
 @bp.route('/project', methods=['POST'])
+@req_helper.api_check_json("name", "team_id")
 @session_helper.enforce_validate_token_api
 def project_post(json_content):
     name = json_content['name']
@@ -78,8 +78,8 @@ def team_get(team_id):
     return api_error_helpers.item_not_found("team", "id", str(team_id))
 
 
-@req_helper.api_check_json("owner_id")
 @bp.route('/team/<int:team_id>/owner', methods=['POST'])
+@req_helper.api_check_json("owner_id")
 @session_helper.enforce_validate_token_api
 def team_transfer_owner(team_id, json_content):
     team = team_util.get_from_id(team_id)
@@ -105,8 +105,8 @@ def team_transfer_owner(team_id, json_content):
         )
 
 
-@req_helper.api_check_json("name")
 @bp.route('/team', methods=['POST'])
+@req_helper.api_check_json("name")
 @session_helper.enforce_validate_token_api
 def team_create(json_content):
     team = team_util.create(json_content['name'], g.user.id)
@@ -166,8 +166,8 @@ def get_new_join_token(team_id):
     return jsonify(join_token.serialize())
 
 
-@req_helper.api_check_json("team_id")
 @bp.route('/user/team', methods=['POST'])
+@req_helper.api_check_json("team_id")
 @session_helper.enforce_validate_token_api
 def set_team(json_content):
     join_token = join_token_util.by_team_id(json_content['team_id'])
