@@ -6,7 +6,7 @@ APP.register_module(function(){
     
     APP.post('/api/user/jointeam',
     {
-        code: code
+        join_token: code
     },
     function(data){
         console.log("Ok");
