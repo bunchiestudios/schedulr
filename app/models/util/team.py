@@ -27,7 +27,7 @@ def create(name: str, owner_id: int) -> Optional[Team]:
     if not owner:
         return None
 
-    team = Team(name=name, owner=owner)
+    team = Team(name=name, owner=owner, users=[owner])
     session.add(team)
     session.commit()
     return team
