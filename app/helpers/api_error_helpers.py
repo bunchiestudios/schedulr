@@ -1,10 +1,12 @@
-from flask import jsonify, Response
+import json
+
+from flask import Response
 
 def item_not_found(
     item_name: str, field_name: str, field_value: str
 ) -> Response:
     return Response(
-        jsonify(
+        json.dumps(
             {
                 "error": {
                     "code": 1,
@@ -21,7 +23,7 @@ def could_not_update(
     item_name: str, field_name: str, field_value: str
 ) -> Response:
     return Response(
-        jsonify(
+        json.dumps(
             {
                 "error": {
                     "code": 2,
@@ -36,7 +38,7 @@ def could_not_update(
 
 def could_not_create(item_name: str) -> Response:
     return Response(
-        jsonify(
+        json.dumps(
             {
                 "error": {
                     "code": 3,
@@ -50,7 +52,7 @@ def could_not_create(item_name: str) -> Response:
 
 def not_authorized() -> Response:
     return Response(
-        jsonify(
+        json.dumps(
             {
                 "error": {
                     "code": 4,
@@ -65,7 +67,7 @@ def not_authorized() -> Response:
 
 def invalid_join_token() -> Response:
     return Response(
-        jsonify(
+        json.dumps(
             {
                 "error": {
                     "code": 5,
@@ -79,7 +81,7 @@ def invalid_join_token() -> Response:
 
 def is_not_json() -> Response:
     return Response(
-        jsonify(
+        json.dumps(
             {
                 "error": {
                     "code": 6,
@@ -93,7 +95,7 @@ def is_not_json() -> Response:
 
 def bad_body_arg() -> Response:
     return Response(
-        jsonify(
+        json.dumps(
             {
                 "error": {
                     "code": 7,
@@ -107,7 +109,7 @@ def bad_body_arg() -> Response:
 
 def missing_json_arg(arg_missing: str) -> Response:
     return Response(
-        jsonify(
+        json.dumps(
             {
                 "error": {
                     "code": 8,
