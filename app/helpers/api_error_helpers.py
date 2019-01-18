@@ -80,7 +80,7 @@ def is_not_json() -> Response:
             {
                 "error": {
                     "code": 6,
-                    "msg": "The request does not contain a JSON body."
+                    "msg": "The request does not contain a valid JSON body."
                 }
             }
         ),
