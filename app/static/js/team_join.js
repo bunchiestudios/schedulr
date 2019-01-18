@@ -9,7 +9,8 @@ APP.register_module(function(){
         join_token: code
     },
     function(data){
-        console.log("Ok");
+        APP.toast("Joined team successfully! Redirecting...");
+        APP.redirect_after('/', 1500);
     },
     function( jqXHR, textStatus, errorThrown){
         APP.toast("Failed to join team :(");
