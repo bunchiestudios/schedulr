@@ -84,7 +84,6 @@ def join_link(code):
                     cards=[
                         {
                             'title': f"Trying to join team: {team.name}",
-                            'text': 'Loading...',
                             'loading': 'join-loader',
                             'id': 'joining-card'
                         },
