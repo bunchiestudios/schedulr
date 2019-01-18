@@ -209,6 +209,6 @@ def join_team_token(json_content):
             "id": g.user.id,
             "name": g.user.name,
             "email": g.user.email,
-            "team_id": g.team.id,
+            "team_id": g.user.team.id,
         }
     )
