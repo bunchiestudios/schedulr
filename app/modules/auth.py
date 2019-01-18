@@ -33,7 +33,6 @@ def login_notice():
         ])
 
 @bp.route('/login')
-# @session_helper.enforce_validate_token
 @session_helper.load_user_if_logged_in
 def login():
     if g.user:

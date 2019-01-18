@@ -92,7 +92,7 @@ def load_user_if_logged_in(method):
     Returns:
         func -- Decorated function.
     """
-
+    @wraps(method)
     def wrapper(*args, **kwargs):
         get_logged_in_user()
         return method(*args, **kwargs)

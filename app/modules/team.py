@@ -85,8 +85,8 @@ def join_link(code):
                         {
                             'title': f"Trying to join team: {team.name}",
                             'text': 'Loading...',
-                            'icon': '<i class="fas fa-spinner spin"></i>',
-                            'loading': 'join-loader'
+                            'loading': 'join-loader',
+                            'id': 'joining-card'
                         },
                     ],
                     script='team_join.js'
