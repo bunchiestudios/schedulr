@@ -1,12 +1,12 @@
-import json
 
-from flask import Response
+
+from flask import Response, make_response, jsonify
 
 def item_not_found(
     item_name: str, field_name: str, field_value: str
 ) -> Response:
-    return Response(
-        json.dumps(
+    return make_response(
+        jsonify(
             {
                 "error": {
                     "code": 1,
@@ -15,15 +15,14 @@ def item_not_found(
                 }
             }
         ),
-        status=404,
-        mimetype="application/json",
+        404
     )
 
 def could_not_update(
     item_name: str, field_name: str, field_value: str
 ) -> Response:
-    return Response(
-        json.dumps(
+    return make_response(
+        jsonify(
             {
                 "error": {
                     "code": 2,
@@ -32,13 +31,12 @@ def could_not_update(
                 }
             }
         ),
-        status=404,
-        mimetype="application/json",
+        404
     )
 
 def could_not_create(item_name: str) -> Response:
-    return Response(
-        json.dumps(
+    return make_response(
+        jsonify(
             {
                 "error": {
                     "code": 3,
@@ -46,13 +44,12 @@ def could_not_create(item_name: str) -> Response:
                 }
             }
         ),
-        status=400,
-        mimetype="application/json",
+        400
     )
 
 def not_authorized() -> Response:
-    return Response(
-        json.dumps(
+    return make_response(
+        jsonify(
             {
                 "error": {
                     "code": 4,
@@ -60,14 +57,13 @@ def not_authorized() -> Response:
                 }
             }
         ),
-        status=403,
-        mimetype="application/json",
+        401
     )
 
 
 def invalid_join_token() -> Response:
-    return Response(
-        json.dumps(
+    return make_response(
+        jsonify(
             {
                 "error": {
                     "code": 5,
@@ -75,13 +71,12 @@ def invalid_join_token() -> Response:
                 }
             }
         ),
-        status=403,
-        mimetype="application/json",
+        401
     )
 
 def is_not_json() -> Response:
-    return Response(
-        json.dumps(
+    return make_response(
+        jsonify(
             {
                 "error": {
                     "code": 6,
@@ -89,13 +84,12 @@ def is_not_json() -> Response:
                 }
             }
         ),
-        status=400,
-        mimetype="application/json"
+        400
     )
 
 def bad_body_arg() -> Response:
-    return Response(
-        json.dumps(
+    return make_response(
+        jsonify(
             {
                 "error": {
                     "code": 7,
@@ -103,13 +97,12 @@ def bad_body_arg() -> Response:
                 }
             }
         ),
-        status=400,
-        mimetype="application/json"
+        400
     )
 
 def missing_json_arg(arg_missing: str) -> Response:
-    return Response(
-        json.dumps(
+    return make_response(
+        jsonify(
             {
                 "error": {
                     "code": 8,
@@ -117,6 +110,5 @@ def missing_json_arg(arg_missing: str) -> Response:
                 }
             }
         ),
-        status=400,
-        mimetype="application/json",
+        400
     )
