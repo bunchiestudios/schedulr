@@ -193,8 +193,8 @@ def set_team(json_content):
     return api_error_helpers.could_not_update('user', 'id', g.user.id)
 
 
-@req_helper.api_check_json("join_token")
 @bp.route('/user/jointeam', methods=['POST'])
+@req_helper.api_check_json("join_token")
 @session_helper.enforce_validate_token_api
 def join_team_token(json_content):
     team = join_token_util.team_by_join_token(json_content['join_token'])
