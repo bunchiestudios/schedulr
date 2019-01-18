@@ -5,7 +5,7 @@ import secrets
 
 from app import db
 from app import models
-from app.helpers import error_helpers, session_helper
+from app.helpers import api_error_helpers, session_helper, req_helper
 from app.models.util import (
     project as project_util,
     user as user_util,
@@ -25,20 +25,21 @@ def project_get(project_id):
         return jsonify(
             {"id": project.id, "team_id": project.team_id, "name": project.name}
         )
-    return error_helpers.item_not_found("project", "id", str(project_id))
+    return api_error_helpers.item_not_found("project", "id", str(project_id))
 
+@req_helper.api_check_json("name", "team_id")
 @bp.route('/project', methods=['POST'])
 @session_helper.enforce_validate_token_api
-def project_post():
-    name = request.args['name']
-    team_id = request.args['team_id']
+def project_post(json_content):
+    name = json_content['name']
+    team_id = json_content['team_id']
 
     project = project_util.add_project(name, team_id)
     if project:
         return jsonify(
             {"id": project.id, "team_id": project.team_id, "name": project.name}
         )
-    return error_helpers.could_not_create("project")
+    return api_error_helpers.could_not_create("project")
 
 
 @bp.route('/user/<int:user_id>', methods=['GET'])
@@ -56,7 +57,7 @@ def user_get(user_id):
             }
         )
 
-    return error_helpers.item_not_found("user", "id", str(user_id))
+    return api_error_helpers.item_not_found("user", "id", str(user_id))
 
 @bp.route('/team/<int:team_id>', methods=['GET'])
 @session_helper.enforce_validate_token_api
@@ -74,20 +75,21 @@ def team_get(team_id):
             }
         )
 
-    return error_helpers.item_not_found("team", "id", str(team_id))
+    return api_error_helpers.item_not_found("team", "id", str(team_id))
 
 
+@req_helper.api_check_json("owner_id")
 @bp.route('/team/<int:team_id>/owner', methods=['POST'])
 @session_helper.enforce_validate_token_api
-def team_transfer_owner(team_id):
+def team_transfer_owner(team_id, json_content):
     team = team_util.get_from_id(team_id)
-    owner_id = request.args['owner_id']
+    owner_id = json_content['owner_id']
 
     if not team:
-        return error_helpers.item_not_found("team", "id", str(team_id))
+        return api_error_helpers.item_not_found("team", "id", str(team_id))
 
     if team.owner.id != g.user.id:
-        return error_helpers.not_authorized()
+        return api_error_helpers.not_authorized()
 
     team = team_util.set_owner(team.id, owner_id)
 
@@ -103,10 +105,11 @@ def team_transfer_owner(team_id):
         )
 
 
+@req_helper.api_check_json("name")
 @bp.route('/team', methods=['POST'])
 @session_helper.enforce_validate_token_api
-def team_create():
-    team = team_util.create(request.args['name'], g.user.id)
+def team_create(json_content):
+    team = team_util.create(json_content['name'], g.user.id)
 
     if team:
         return jsonify(
@@ -119,7 +122,7 @@ def team_create():
             }
         )
 
-    return error_helpers.item_not_found("user", "id", str(g.user.id))
+    return api_error_helpers.item_not_found("user", "id", str(g.user.id))
 
 
 # Ideally this would be a GET request, but browser will cache responses, and
@@ -130,10 +133,10 @@ def get_join_token(team_id):
     team = team_util.get_from_id(team_id)
 
     if not team:
-        return error_helpers.item_not_found("team", "id", str(team_id))
+        return api_error_helpers.item_not_found("team", "id", str(team_id))
 
     if g.user.id != team.owner_id:
-        error_helpers.not_authorized()
+        api_error_helpers.not_authorized()
 
     join_token = join_token_util.by_team_id(team_id)
 
@@ -142,7 +145,7 @@ def get_join_token(team_id):
         join_token = join_token_util.add_to_team(team_id, secrets.token_urlsafe(128))
 
         if not join_token:
-            return error_helpers.item_not_found("team", "id", str(team_id))
+            return api_error_helpers.item_not_found("team", "id", str(team_id))
 
     return jsonify(join_token.serialize())
 
@@ -153,28 +156,29 @@ def get_new_join_token(team_id):
     team = team_util.get_from_id(team_id)
 
     if not team:
-        return error_helpers.item_not_found("team", "id", str(team_id))
+        return api_error_helpers.item_not_found("team", "id", str(team_id))
 
     join_token = join_token_util.add_to_team(team_id, secrets.token_urlsafe(128))
 
     if not join_token:
-        return error_helpers.item_not_found("team", "id", str(team_id))
+        return api_error_helpers.item_not_found("team", "id", str(team_id))
 
     return jsonify(join_token.serialize())
 
 
+@req_helper.api_check_json("team_id")
 @bp.route('/user/team', methods=['POST'])
 @session_helper.enforce_validate_token_api
-def set_team():
-    join_token = join_token_util.by_team_id(request.args['team_id'])
+def set_team(json_content):
+    join_token = join_token_util.by_team_id(json_content['team_id'])
     
     if not join_token:
-        return error_helpers.item_not_found('join_token', 'team_id', request.args['team_id'])
+        return api_error_helpers.item_not_found('join_token', 'team_id', json_content['team_id'])
 
-    if join_token.token_str != request.args['join_token']:
-        return error_helpers.invalid_join_token()
+    if join_token.token_str != json_content['join_token']:
+        return api_error_helpers.invalid_join_token()
 
-    user = user_util.set_team(g.user.id, request.args['team_id'])
+    user = user_util.set_team(g.user.id, json_content['team_id'])
 
     if user:
         return jsonify(
@@ -186,17 +190,18 @@ def set_team():
             }
         )
 
-    return error_helpers.could_not_update('user', 'id', g.user.id)
+    return api_error_helpers.could_not_update('user', 'id', g.user.id)
 
 
-@bp.route('/user/team/token', methods=['POST'])
+@req_helper.api_check_json("join_token")
+@bp.route('/user/jointeam', methods=['POST'])
 @session_helper.enforce_validate_token_api
-def join_team_token():
-    team = join_token_util.team_by_join_token(request.args['join_token'])
+def join_team_token(json_content):
+    team = join_token_util.team_by_join_token(json_content['join_token'])
     join_token = team.join_tokens[0] if team.join_tokens else None
 
     if not join_token:
-        return error_helpers.item_not_found('join token', 'token', request.args['join_token'])
+        return api_error_helpers.item_not_found('join token', 'token', json_content['join_token'])
 
     user_util.set_team(g.user.id, team.id)
     return jsonify(
