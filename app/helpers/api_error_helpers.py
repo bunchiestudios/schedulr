@@ -104,3 +104,17 @@ def bad_body_arg() -> Response:
         status=400,
         mimetype="application/json"
     )
+
+def missing_json_arg(arg_missing: str) -> Response:
+    return Response(
+        jsonify(
+            {
+                "error": {
+                    "code": 8,
+                    "msg": f"Your JSON request is missing argument: {arg_missing}."
+                }
+            }
+        ),
+        status=400,
+        mimetype="application/json",
+    )

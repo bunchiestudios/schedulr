@@ -27,13 +27,10 @@ def project_get(project_id):
         )
     return api_error_helpers.item_not_found("project", "id", str(project_id))
 
-@req_helper.api_check_json
+@req_helper.api_check_json("name", "team_id")
 @bp.route('/project', methods=['POST'])
 @session_helper.enforce_validate_token_api
 def project_post(json_content):
-    if not ('name' in json_content and 'team_id' in json_content):
-        return api_error_helpers.bad_body_arg()
-
     name = json_content['name']
     team_id = json_content['team_id']
 
@@ -81,13 +78,10 @@ def team_get(team_id):
     return api_error_helpers.item_not_found("team", "id", str(team_id))
 
 
-@req_helper.api_check_json
+@req_helper.api_check_json("owner_id")
 @bp.route('/team/<int:team_id>/owner', methods=['POST'])
 @session_helper.enforce_validate_token_api
 def team_transfer_owner(team_id, json_content):
-    if 'owner_id' not in json_content:
-        return api_error_helpers.bad_body_arg()
-
     team = team_util.get_from_id(team_id)
     owner_id = json_content['owner_id']
 
@@ -111,13 +105,10 @@ def team_transfer_owner(team_id, json_content):
         )
 
 
-@req_helper.api_check_json
+@req_helper.api_check_json("name")
 @bp.route('/team', methods=['POST'])
 @session_helper.enforce_validate_token_api
 def team_create(json_content):
-    if 'name' not in json_content:
-        return api_error_helpers.bad_body_arg()
-
     team = team_util.create(json_content['name'], g.user.id)
 
     if team:
@@ -175,13 +166,10 @@ def get_new_join_token(team_id):
     return jsonify(join_token.serialize())
 
 
-@req_helper.api_check_json
+@req_helper.api_check_json("team_id")
 @bp.route('/user/team', methods=['POST'])
 @session_helper.enforce_validate_token_api
 def set_team(json_content):
-    if 'team_id' not in json_content:
-        return api_error_helpers.bad_body_arg()
-
     join_token = join_token_util.by_team_id(json_content['team_id'])
     
     if not join_token:
@@ -205,13 +193,10 @@ def set_team(json_content):
     return api_error_helpers.could_not_update('user', 'id', g.user.id)
 
 
-@req_helper.api_check_json
-@bp.route('/user/team/token', methods=['POST'])
+@req_helper.api_check_json("join_token")
+@bp.route('/user/jointeam', methods=['POST'])
 @session_helper.enforce_validate_token_api
 def join_team_token(json_content):
-    if 'join_token' not in json_content:
-        return api_error_helpers.bad_body_arg()
-
     team = join_token_util.team_by_join_token(json_content['join_token'])
     join_token = team.join_tokens[0] if team.join_tokens else None
 
