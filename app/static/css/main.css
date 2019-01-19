@@ -1,0 +1,93 @@
+
+#home-link {
+    color: white;
+    text-decoration: none;
+}
+
+.card-container {
+    margin-top: 20px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.main-card {
+    width: 100%;
+    margin-bottom: 30px;
+    min-height: 0;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.spin {
+    transition-property: transform;
+    animation-name: rotate; 
+    animation-duration: 2s; 
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes rotate {
+    from {transform: rotate(0deg);}
+    to {transform: rotate(360deg);}
+}
+
+.mdl-card__supporting-text {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.progress-full {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.card-icon {
+    margin-left: 15px;
+}
+
+.something-bad {
+    color: #B00020;
+    font-style: italic;
+}
+
+.login-card {
+    max-width: 500px;
+}
+
+.login-card > .mdl-card__title {
+    font-size: 2em;
+    text-align: center;
+    display: block;
+}
+
+.login-button {
+    margin-left: auto;
+    margin-right: auto;
+    width: 250px;
+    margin-bottom: 15px;
+    height: 60px;
+    cursor: pointer;
+    display: block;
+}
+
+#msft-login {
+    background: url('/static/logos/ms-symbollockup_signin_light.svg') no-repeat;
+    background-size: contain;
+}
+
+#msft-login:active {
+    background: url('/static/logos/ms-symbollockup_signin_light_pressed.svg') no-repeat;
+    background-size: contain;
+}
+
+#google-login {
+    background: url('/static/logos/btn_google_signin_light_normal_web@2x.png') no-repeat;
+    background-size: contain;
+}
+#google-login:active {
+    background: url('/static/logos/btn_google_signin_light_pressed_web@2x.png') no-repeat;
+    background-size: contain;
+}
+

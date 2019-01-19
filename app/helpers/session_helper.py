@@ -1,6 +1,6 @@
 
 from functools import wraps
-
+from secrets import token_urlsafe
 from flask import session, url_for, redirect, abort, make_response, jsonify, current_app
 
 from app.models.util import token as token_utils
@@ -17,7 +17,15 @@ def session_token_exists():
 def get_session_token():
     return session[get_session_token_key()]
 
+def make_session(*, user: User):
+    token = token_urlsafe(128)
+    session[get_session_token_key()] = token
+    token_utils.save_token(user_id=user.id, token=token)
+
+
 def get_logged_in_user() -> User:
+    from flask import g
+    g.setdefault('user', None)
     if session_token_exists():
         token_str = get_session_token()
         token = token_utils.verify_token(token_str)
@@ -30,7 +38,6 @@ def get_logged_in_user() -> User:
         if user is None:
             token_utils.destroy_token(token)
             return None
-        from flask import g
         g.user = user
         return user
     else:
@@ -44,7 +51,7 @@ def __make_on_failure(action):
         return error_result
     elif action == 'redirect':
         def redirect_result(code, message):
-            return redirect(url_for('auth.callback'))
+            return redirect(url_for('auth.login'))
         return redirect_result
 
 def __make_wrapper(method, action):
@@ -85,7 +92,7 @@ def load_user_if_logged_in(method):
     Returns:
         func -- Decorated function.
     """
-
+    @wraps(method)
     def wrapper(*args, **kwargs):
         get_logged_in_user()
         return method(*args, **kwargs)

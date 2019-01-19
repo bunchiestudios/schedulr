@@ -2,6 +2,7 @@ from typing import Optional
 
 from app import db
 from app.models import Team, User
+from app.models.util.user import set_team
 
 def get_from_id(team_id: int) -> Optional[Team]:
     session = db.get_session()
@@ -30,4 +31,5 @@ def create(name: str, owner_id: int) -> Optional[Team]:
     team = Team(name=name, owner=owner, users=[owner])
     session.add(team)
     session.commit()
+    set_team(owner.id, team.id)
     return team
