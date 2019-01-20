@@ -91,3 +91,13 @@
     background-size: contain;
 }
 
+#team-content {
+    width: 95vw;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#bar-chart {
+    height: 100%;
+}
+

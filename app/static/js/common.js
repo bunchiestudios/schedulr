@@ -2,6 +2,10 @@
 
 let APP = {
     modules: [],
+    handlers: {
+        default_post: (data) => console.log(data),
+        post_error: (jqXHR, textStatus, errorThrown) => console.log(textStatus + " " + errorThrown),
+    },
     init(){
         this.snackbarContainer = document.querySelector('#page-toast-container');
         this.modules.forEach(element => element());
@@ -18,7 +22,7 @@ let APP = {
     register_module(callback){
         this.modules.push(callback);
     },
-    post(url, data, success, fail){
+    post(url, data=null, success=APP.handlers.default_post, fail=APP.handlers.post_error){
         $.ajax(url, {
             type: 'POST',
             dataType: "json",

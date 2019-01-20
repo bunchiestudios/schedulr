@@ -16,4 +16,4 @@ APP.register_module(function(){
         APP.toast("Failed to join team :(");
         console.log(textStatus, errorThrown);
     })
-})
+});
