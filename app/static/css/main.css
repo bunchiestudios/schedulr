@@ -137,6 +137,10 @@
 
 #refresh-code {
     margin-top: 20px;
-    margin-left: 30px;
     font-size: 0.7em;
+}
+
+#project-list{
+    padding-left: 30px;
+    display: none;
 }

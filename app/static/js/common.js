@@ -1,4 +1,6 @@
-
+String.prototype.isEmpty = function() {
+    return (this.length === 0 || !this.trim());
+};
 
 let APP = {
     modules: [],
@@ -23,7 +25,7 @@ let APP = {
         // Call modules
         this.modules.forEach(element => element());
     },
-    showModal(title, text){
+    showModal(title, text, onClose=null){
         this.modal.modal.find('.mdl-card__title-text').text(title);
         this.modal.modal.find('.mdl-card__supporting-text').text(text);
         this.modal.modal.show();
@@ -32,6 +34,9 @@ let APP = {
             if(event.target === this.modal.modal[0]){
                 this.hideModal();
                 $(window).off('click');
+                if(onClose !== null){
+                    onClose();
+                }
             }
         });
     },
@@ -39,7 +44,6 @@ let APP = {
         this.modal.modal.hide();
         this.modal.modal.find('.mdl-card__title-text').text('');
         this.modal.modal.find('.mdl-card__supporting-text').text('');
-        $('#chip-container').hide();
     },
     redirect(url){
         window.location.replace(url);

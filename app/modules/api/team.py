@@ -121,3 +121,14 @@ def get_new_join_token(team_id):
 
     # return jsonify(join_token.serialize())
     return jsonify(link=url_for('team.join_link', code=join_token.token_str, _external=True))
+
+
+@bp.route('/<int:team_id>/projects', methods=['POST'])
+@session_helper.enforce_validate_token_api
+def team_get_projects(team_id):
+    team = team_util.get_from_id(team_id)
+
+    if team:
+        return jsonify([project.id for project in team.projects])
+
+    return api_error_helpers.item_not_found("user", "id", str(g.user.id))
