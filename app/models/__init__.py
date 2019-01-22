@@ -120,3 +120,13 @@ class Schedule(Base):
     def __repr__(self):
         return f"<Schedule(id={self.id}, user_id={self.user_id}, project_id={self.project_id}, week={Week.fromordinal(self.week).isoformat()})>"
 
+    def serialize(self):
+        return {
+            "iso_week": Week.fromordinal(self.week).isoformat(),
+            "week_date": Week.fromordinal(self.week).monday().isoformat(),
+            "user_id": self.user_id,
+            "id": self.id,
+            "project_id": self.project_id,
+            "hours": self.hours,
+        }
+
