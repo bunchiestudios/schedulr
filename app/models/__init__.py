@@ -112,7 +112,9 @@ class Schedule(Base):
     project = relationship('Project', back_populates="schedules")
 
     __table_args__ = (
-        UniqueConstraint('project_id', 'week', name='project_week'),
+        UniqueConstraint(
+            'project_id', 'week', 'user_id', name='project_week_user'
+        ),
     )
     
     def __repr__(self):

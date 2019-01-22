@@ -1,9 +1,22 @@
-from typing import Dict, Optional, Tuple
+from typing import Dict, NamedTuple, Optional, Tuple
 
 from app import db
 from app.models import Project, Schedule, User
 
-def set_schedule(user_id: int, project_id: int, week: int, hours: int) -> Optional[Schedule]:
+
+class WeekProject(NamedTuple):
+    week: int
+    project_id: int
+
+
+class WeekUser(NamedTuple):
+    week: int
+    user_id: int
+
+
+def set_schedule(
+    user_id: int, project_id: int, week: int, hours: int
+) -> Optional[Schedule]:
     """
     Logs the number of hours a given user plans to work on a given project for
     a given week. This will override existing values if present.
@@ -57,7 +70,7 @@ def get_schedule(user_id: int, project_id: int, week: int) -> Optional[Schedule]
     ).one_or_none()
 
 
-def get_user_schedules(user_id: int) -> Dict[Tuple[int, int], Schedule]:
+def get_user_schedules(user_id: int) -> Dict[WeekProject, Schedule]:
     """
     Returns all the schedules for a given user by week.
     :param user_id: ID of the user for which to get schedules.
@@ -69,27 +82,28 @@ def get_user_schedules(user_id: int) -> Dict[Tuple[int, int], Schedule]:
     schedules = session.query(Schedule).\
         filter(Schedule.user_id == user_id).all()
 
-    return {(sched.project_id, sched.week): sched for sched in schedules}
+    return {WeekProject(sched.week, sched.project_id): sched for sched in schedules}
 
 
-def get_project_schedules(project_id: int) -> Dict[int, Schedule]:
+def get_project_schedules(project_id: int) -> Dict[WeekUser, Schedule]:
     """
     Returns all schedules for a given project.
     :param project_id: The ID of the project for which to get schedules.
-    :returns: A dictionary of the schedules of a given project, key-ed by week
-        number.
+    :returns: A dictionary of the schedules of a given project, key-ed by
+        user-week pairs.
     """
     session = db.get_session()
 
     schedules = session.query(Schedule).\
         filter(Schedule.project_id == project_id).all()
 
-    return {sched.week: sched for sched in schedules}
+    return {WeekUser(sched.week, sched.user_id): sched for sched in schedules}
 
 
-def get_project_week_schedule(project_id: int, week: int) -> Optional[Schedule]:
+def get_project_week_schedule(project_id: int, week: int) -> Dict[int, Schedule]:
     """
-    Gets the schedule of a given project for a given week.
+    Gets all the schedules of a given project for a given week any user who
+    logged hours on that project for the week.
     :param project_id: The ID of the project being searched.
     :param week: The week for which to search for the schedule.
     :returns: The schedule for a given week and project, if one exists. None
@@ -97,6 +111,7 @@ def get_project_week_schedule(project_id: int, week: int) -> Optional[Schedule]:
     """
     session = db.get_session()
 
-    return session.query(Schedule).\
-        filter(Schedule.project_id == project_id, Schedule.week == week).\
-        one_or_none()
+    schedules = session.query(Schedule).\
+        filter(Schedule.project_id == project_id, Schedule.week == week).all()
+
+    return {sched.user_id: sched for sched in schedules}
