@@ -11,7 +11,7 @@ from app.models.util import (
 
 bp = Blueprint('api.team', __name__)
 
-@bp.route('/team/<int:team_id>', methods=['GET'])
+@bp.route('/<int:team_id>', methods=['GET'])
 @session_helper.enforce_validate_token_api
 def team_get(team_id):
     team = team_util.get_from_id(team_id)
@@ -30,7 +30,7 @@ def team_get(team_id):
     return api_error_helpers.item_not_found("team", "id", str(team_id))
 
 
-@bp.route('/team/<int:team_id>/owner', methods=['POST'])
+@bp.route('/<int:team_id>/owner', methods=['POST'])
 @req_helper.api_check_json("owner_id")
 @session_helper.enforce_validate_token_api
 def team_transfer_owner(team_id, json_content):
@@ -57,7 +57,7 @@ def team_transfer_owner(team_id, json_content):
         )
 
 
-@bp.route('/team', methods=['POST'])
+@bp.route('/', methods=['POST'])
 @req_helper.api_check_json("name")
 @session_helper.enforce_validate_token_api
 def team_create(json_content):
@@ -79,7 +79,7 @@ def team_create(json_content):
 
 # Ideally this would be a GET request, but browser will cache responses, and
 # this _could_ have side-effects if no token exists already.
-@bp.route('/team/<int:team_id>/join_token', methods=['POST'])
+@bp.route('/<int:team_id>/join_token', methods=['POST'])
 @session_helper.enforce_validate_token_api
 def get_join_token(team_id):
     team = team_util.get_from_id(team_id)
@@ -102,7 +102,7 @@ def get_join_token(team_id):
     return jsonify(join_token.serialize())
 
 
-@bp.route('/team/<int:team_id>/join_token/new', methods=['POST'])
+@bp.route('/<int:team_id>/join_token/new', methods=['POST'])
 @session_helper.enforce_validate_token_api
 def get_new_join_token(team_id):
     team = team_util.get_from_id(team_id)
