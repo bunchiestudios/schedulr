@@ -15,7 +15,20 @@ bp = Blueprint('team', __name__)
 def root():
     if not g.user.team:
         return redirect(url_for('team.join'))
-    return render_template("team.html", title=g.user.team.name, script="team-chart.js")
+    actions = []
+    if g.user.team.owner_id == g.user.id:
+        actions.append({
+            'id': 'get-invite-link',
+            'text': 'Get team invite link'
+        })
+    return render_template(
+        "team.html", 
+        title = g.user.team.name, 
+        script = ["team-chart.js", "teampage.js"],
+        sidebar = {
+            'title': 'Team options',
+            'actions': actions
+        })
 
 @bp.route('/join', strict_slashes=False)
 @session_helper.enforce_validate_token

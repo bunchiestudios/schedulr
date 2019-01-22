@@ -53,12 +53,14 @@
                 <div class="mdl-layout__drawer">
                 <span class="mdl-layout-title">{{sidebar.title}}</span>
                     <nav class="mdl-navigation">
-                        {% for item in sidebar.items %}
-                            <a class="mdl-navigation__link" href="{{item.href}}"
+                        {% for item in sidebar.actions %}
+                            <div class="mdl-navigation__link sidebar-item hvr-icon-forward pointer" 
                             {% if item.id %}
                             id="{{item.id}}"
-                            {% endif %}
-                            >{{item.text}}</a>
+                            {% endif %}>
+                                {{item.text|safe}} 
+                                <i class="fas fa-chevron-circle-right hvr-icon"></i>
+                            </div>
                         {% endfor %}
                     </nav>
                 </div>
@@ -73,14 +75,29 @@
             <div class="mdl-snackbar__text"></div>
             <button class="mdl-snackbar__action" type="button"></button>
         </div>
-    {% if script %}
-        {% if script is not string and script is iterable %}
-            {% for script_src in script %}
-                <script src="/static/js/{{script_src}}"></script>
-            {% endfor%}
-        {% else %}
-            <script src="/static/js/{{script}}"></script>
+        <div id="modal">
+            <div class="modal-content mdl-card mdl-shadow--2dp">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text"></h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                </div>
+                {% block modal_content %}{% endblock %}
+                <div class="mdl-card__menu">
+                    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect" id="modal-close">
+                        <i class="material-icons">close</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% if script %}
+            {% if script is not string and script is iterable %}
+                {% for script_src in script %}
+                    <script src="/static/js/{{script_src}}"></script>
+                {% endfor%}
+            {% else %}
+                <script src="/static/js/{{script}}"></script>
+            {% endif %}
         {% endif %}
-    {% endif %}
     </body>
 </html>

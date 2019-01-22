@@ -7,8 +7,39 @@ let APP = {
         post_error: (jqXHR, textStatus, errorThrown) => console.log(textStatus + " " + errorThrown),
     },
     init(){
-        this.snackbarContainer = document.querySelector('#page-toast-container');
+        // Setup snackbar
+        this.snackbarContainer = document.querySelector('#page-toast-container'),
+
+        // Setup modal
+        this.modal = {
+            modal: $('#modal'),
+            close: $('#modal-close'),
+        };
+        this.modal.close.on('click', (event)=>{
+            event.preventDefault();
+            APP.hideModal();
+        });
+
+        // Call modules
         this.modules.forEach(element => element());
+    },
+    showModal(title, text){
+        this.modal.modal.find('.mdl-card__title-text').text(title);
+        this.modal.modal.find('.mdl-card__supporting-text').text(text);
+        this.modal.modal.show();
+        $(window).on('click', (event)=>{
+            event.preventDefault();
+            if(event.target === this.modal.modal[0]){
+                this.hideModal();
+                $(window).off('click');
+            }
+        });
+    },
+    hideModal(event){
+        this.modal.modal.hide();
+        this.modal.modal.find('.mdl-card__title-text').text('');
+        this.modal.modal.find('.mdl-card__supporting-text').text('');
+        $('#chip-container').hide();
     },
     redirect(url){
         window.location.replace(url);
@@ -31,6 +62,21 @@ let APP = {
             success: success,
             error: fail
         });
+    },
+    toggle_drawer(){
+        $('.mdl-layout')[0].MaterialLayout.toggleDrawer();
+    },
+    copy_to_clipboard(text) {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(text).select();
+        try{
+            document.execCommand("copy");
+            APP.toast("Copied!");
+        }catch(e){
+
+        }
+        $temp.remove();
     }
 };
 

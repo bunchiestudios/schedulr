@@ -1,7 +1,9 @@
 
 from flask import Flask, g
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import create_engine
+
+from app.db import init_app
 
 def create_app():
     # Setup flask app
@@ -10,10 +12,12 @@ def create_app():
 
     # Setup SQLAlchemy engine & Session class
     flapp.db_engine = create_engine(flapp.config['DB_STRING'])
-    flapp.db_Session = sessionmaker(bind=flapp.db_engine)
+    flapp.db_Session = scoped_session(sessionmaker(bind=flapp.db_engine))
+
+    init_app(flapp)
 
     # Setup blueprints
-    from app.modules import test_module, auth, setup, home, team, api
+    from app.modules import test_module, auth, setup, home, team
     flapp.register_blueprint(test_module.bp, url_prefix='/test')
     flapp.register_blueprint(setup.bp, url_prefix='/setup')
     flapp.register_blueprint(auth.bp, url_prefix='/auth')
