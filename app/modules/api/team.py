@@ -1,5 +1,5 @@
 
-from flask import Blueprint, jsonify, g 
+from flask import Blueprint, jsonify, g, url_for
 import secrets
 
 from app.helpers import api_error_helpers, session_helper, req_helper
@@ -40,7 +40,7 @@ def team_transfer_owner(team_id, json_content):
     if not team:
         return api_error_helpers.item_not_found("team", "id", str(team_id))
 
-    if team.owner.id != g.user.id:
+    if team.owner_id != g.user.id:
         return api_error_helpers.not_authorized()
 
     team = team_util.set_owner(team.id, owner_id)
@@ -57,7 +57,7 @@ def team_transfer_owner(team_id, json_content):
         )
 
 
-@bp.route('/', methods=['POST'])
+@bp.route('/', methods=['POST'], strict_slashes=False)
 @req_helper.api_check_json("name")
 @session_helper.enforce_validate_token_api
 def team_create(json_content):
@@ -88,18 +88,19 @@ def get_join_token(team_id):
         return api_error_helpers.item_not_found("team", "id", str(team_id))
 
     if g.user.id != team.owner_id:
-        api_error_helpers.not_authorized()
+        return api_error_helpers.not_authorized()
 
     join_token = join_token_util.by_team_id(team_id)
 
     if not join_token:
         # Statistically unlikely that we'll ever get repeated tokens
-        join_token = join_token_util.add_to_team(team_id, secrets.token_urlsafe(128))
+        join_token = join_token_util.add_to_team(team_id, secrets.token_urlsafe(16))
 
         if not join_token:
             return api_error_helpers.item_not_found("team", "id", str(team_id))
 
-    return jsonify(join_token.serialize())
+    #return jsonify(join_token.serialize())
+    return jsonify(link=url_for('team.join_link', code=join_token.token_str, _external=True))
 
 
 @bp.route('/<int:team_id>/join_token/new', methods=['POST'])
@@ -110,9 +111,24 @@ def get_new_join_token(team_id):
     if not team:
         return api_error_helpers.item_not_found("team", "id", str(team_id))
 
-    join_token = join_token_util.add_to_team(team_id, secrets.token_urlsafe(128))
+    if team.owner_id != g.user.id:
+        return api_error_helpers.not_authorized()
+
+    join_token = join_token_util.add_to_team(team_id, secrets.token_urlsafe(16))
 
     if not join_token:
         return api_error_helpers.item_not_found("team", "id", str(team_id))
 
-    return jsonify(join_token.serialize())
+    # return jsonify(join_token.serialize())
+    return jsonify(link=url_for('team.join_link', code=join_token.token_str, _external=True))
+
+
+@bp.route('/<int:team_id>/projects', methods=['POST'])
+@session_helper.enforce_validate_token_api
+def team_get_projects(team_id):
+    team = team_util.get_from_id(team_id)
+
+    if team:
+        return jsonify([project.id for project in team.projects])
+
+    return api_error_helpers.item_not_found("user", "id", str(g.user.id))

@@ -1,7 +1,7 @@
 
-from flask import Blueprint
+from flask import Blueprint, url_for
 bp = Blueprint('test', __name__)
 
 @bp.route('/', methods=['Get', 'POST'])
 def test():
-    return "<h1> Hello world! </h1>"
+    return url_for('api.me.get_own_team')

@@ -1,5 +1,5 @@
 
-from flask import Blueprint, jsonify, g 
+from flask import Blueprint, jsonify, g, make_response
 import secrets
 
 from app.helpers import api_error_helpers, session_helper, req_helper
@@ -19,7 +19,12 @@ def get_own_team():
     if team is None:
         return api_error_helpers.item_not_found(item_name='Team-User', field_name='user-id', field_value='g.user.id')
     return jsonify(
-        id=team.id,
-        name=team.name,
-        owner_id=team.owner_id
+        {
+            "id": team.id,
+            "name": team.name,
+            "team_members": [user.id for user in team.users],
+            "projects": [project.id for project in team.projects],
+            "owner_id": team.owner.id,
+            "user_is_owner": g.user.id == team.owner_id
+        }
     )
