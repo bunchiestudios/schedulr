@@ -35,12 +35,26 @@ def project_post(json_content):
 
 
 @bp.route('/<int:project_id>/schedules', methods=['GET'])
+@req_helper.api_check_json()
 @session_helper.enforce_validate_token_api
-def project_schedules(project_id: int):
+def project_schedules(json_content, project_id: int):
     if not project_util.get_project_by_id(project_id):
         return api_error_helpers.item_not_found("project", "id", str(project_id))
 
     schedule_dict = schedule_util.get_project_schedules(project_id)
+
+    # Filter out everything before a given week-date if provided
+    if "not_before" in json_content:
+        try:
+            filter_week = Week.fromstring(json_content["not_before"])
+        except ValueError:
+            return api_error_helpers.invalid_body_arg("not_before")
+        schedule_dict = {
+            key: sched
+            for key, sched
+            in schedule_dict.items()
+            if sched.week >= filter_week.toordinal()
+        }
 
     return jsonify(
         [sched.serialize() for sched in schedule_dict.values()]
