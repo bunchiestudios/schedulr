@@ -57,7 +57,7 @@ def team_transfer_owner(team_id, json_content):
         )
 
 
-@bp.route('/', methods=['POST'])
+@bp.route('/', methods=['POST'], strict_slashes=False)
 @req_helper.api_check_json("name")
 @session_helper.enforce_validate_token_api
 def team_create(json_content):
