@@ -50,6 +50,9 @@ def set_schedule(
         return schedule
 
     schedule = Schedule(user=user, project=project, week=week, hours=hours)
+    session.add(schedule)
+    session.commit()
+    return schedule
 
 
 def get_schedule(user_id: int, project_id: int, week: int) -> Optional[Schedule]:

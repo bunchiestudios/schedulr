@@ -83,17 +83,17 @@ def log_hours(json_content):
     try:
         project_id = int(json_content["project_id"])
     except ValueError:
-        api_error_helpers.invalid_body_arg("project_id")
+        return api_error_helpers.invalid_body_arg("project_id")
 
     try:
         wk = Week.fromstring(json_content["iso_week"])
     except ValueError:
-        api_error_helpers.invalid_body_arg("iso_week")
+        return api_error_helpers.invalid_body_arg("iso_week")
 
     try:
         hours = int(json_content["hours"])
     except ValueError:
-        api_error_helpers.invalid_body_arg("hours")
+        return api_error_helpers.invalid_body_arg("hours")
 
     sched = schedule_util.set_schedule(g.user.id, project_id, wk.toordinal(), hours)
     
