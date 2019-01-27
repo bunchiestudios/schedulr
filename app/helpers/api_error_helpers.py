@@ -128,3 +128,17 @@ def invalid_body_arg(bad_arg: str) -> Response:
         ),
         400
     )
+
+def invalid_url_arg(bad_arg: str) -> Response:
+    return make_response(
+        jsonify(
+            {
+                "error": {
+                    "code": 9,
+                    "msg": "Your JSON request passed an incorrect value for "
+                    f"argument {bad_arg}",
+                }
+            }
+        ),
+        400
+    )
