@@ -1,7 +1,7 @@
-from typing import Dict, NamedTuple, Optional, Tuple
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 from app import db
-from app.models import Project, Schedule, User
+from app.models import Project, Schedule, User, Team
 
 
 class WeekProject(NamedTuple):
@@ -118,3 +118,17 @@ def get_project_week_schedule(project_id: int, week: int) -> Dict[int, Schedule]
         filter(Schedule.project_id == project_id, Schedule.week == week).all()
 
     return {sched.user_id: sched for sched in schedules}
+
+
+def get_team_schedule(team_id: int) -> List[Schedule]:
+    """
+    Gets all the schedules for all the projects owned by a given team.
+    :param team_id: The ID of the team from which schedules are being fetched.
+    :returns: A list of all schedules for said team.
+    """
+    session = db.get_session()
+
+    return session.query(Schedule).\
+                   join(Project).\
+                   filter(Project.team_id == team_id).\
+                   all()
