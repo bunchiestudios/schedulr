@@ -6,7 +6,8 @@ from app.helpers import api_error_helpers, session_helper, req_helper
 
 from app.models.util import (
     team as team_util,
-    join_token as join_token_util
+    join_token as join_token_util,
+    schedule as schedule_util,
 )
 
 bp = Blueprint('api.team', __name__)
@@ -131,4 +132,15 @@ def team_get_projects(team_id):
     if team:
         return jsonify([project.id for project in team.projects])
 
-    return api_error_helpers.item_not_found("user", "id", str(g.user.id))
+    return api_error_helpers.item_not_found("team", "id", str(team_id))
+
+
+@bp.route('/<int:team_id>/schedules', methods=['GET'])
+@session_helper.enforce_validate_token_api
+def team_get_schedules(team_id: int):
+    team = team_util.get_from_id(team_id)
+
+    if team:
+        return jsonify([schedule.serialize() for schedule in schedule_util.get_team_schedules(team_id)])
+
+    return api_error_helpers.item_not_found("team", "id", str(team_id))

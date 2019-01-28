@@ -120,7 +120,7 @@ def get_project_week_schedule(project_id: int, week: int) -> Dict[int, Schedule]
     return {sched.user_id: sched for sched in schedules}
 
 
-def get_team_schedule(team_id: int) -> List[Schedule]:
+def get_team_schedules(team_id: int) -> List[Schedule]:
     """
     Gets all the schedules for all the projects owned by a given team.
     :param team_id: The ID of the team from which schedules are being fetched.
