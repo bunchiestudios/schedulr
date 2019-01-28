@@ -155,7 +155,7 @@ def team_get_chart_data(team_id):
     look_ahead = request.args.get('look_ahead', default=0, type=int)
     try:
         start = Week.fromstring(start_ahead).toordinal()
-    except:
+    except ValueError:
         return api_error_helpers.invalid_url_arg('start_ahead')
     end = start + look_ahead
     if end < start:
