@@ -121,10 +121,13 @@ def get_project_week_schedule(project_id: int, week: int) -> Dict[int, Schedule]
     return {sched.user_id: sched for sched in schedules}
 
 
-def get_team_schedules(team_id: int) -> List[Schedule]:
+def get_team_schedules(team_id: int, start: int, end: int) -> List[Schedule]:
     """
-    Gets all the schedules for all the projects owned by a given team.
+    Gets all the schedules for all the projects owned by a given team, filtered
+    to fall between two weeks.
     :param team_id: The ID of the team from which schedules are being fetched.
+    :param start: Start week of the filter, inclusive, as an ordinal ISO week date
+    :param end: End week of the filter, inclusive, as an ordinal ISO week date
     :returns: A list of all schedules for said team.
     """
     session = db.get_session()
@@ -132,6 +135,8 @@ def get_team_schedules(team_id: int) -> List[Schedule]:
     return session.query(Schedule).\
                    join(Project).\
                    filter(Project.team_id == team_id).\
+                   filter(Schedule.week >= start).\
+                   filter(Schedule.week <= end).\
                    all()
 
 

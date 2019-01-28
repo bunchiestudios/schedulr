@@ -140,10 +140,21 @@ def team_get_projects(team_id):
 @bp.route('/<int:team_id>/schedules', methods=['GET'])
 @session_helper.enforce_validate_token_api
 def team_get_schedules(team_id: int):
-    team = team_util.get_from_id(team_id)
-
-    if team:
+    if team_util.get_from_id(team_id):
         return jsonify([schedule.serialize() for schedule in schedule_util.get_team_schedules(team_id)])
+
+    start_ahead = request.args.get('start_ahead', default=None)
+    look_ahead = request.args.get('look_ahead', default=0, type=int)
+    try:
+        start = Week.fromstring(start_ahead).toordinal()
+    except ValueError:
+        return api_error_helpers.invalid_url_arg('start_ahead')
+
+    end = start + look_ahead
+    if end < start:
+        return api_error_helpers.invalid_url_arg('["start_ahead", "look_ahead"]')
+
+    return schedule_util.get_team_schedules(team_id, start, end)
 
     return api_error_helpers.item_not_found("team", "id", str(team_id))
 
@@ -151,6 +162,9 @@ def team_get_schedules(team_id: int):
 @bp.route('/<int:team_id>/chart-data', methods=['GET'])
 @session_helper.enforce_validate_token_api
 def team_get_chart_data(team_id):
+    if team_util.get_from_id(team_id):
+        return jsonify([schedule.serialize() for schedule in schedule_util.get_team_schedules(team_id)])
+
     start_ahead = request.args.get('start_ahead', default=None)
     look_ahead = request.args.get('look_ahead', default=0, type=int)
     try:
