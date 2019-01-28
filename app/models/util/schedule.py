@@ -135,7 +135,19 @@ def get_team_schedules(team_id: int) -> List[Schedule]:
                    all()
 
 
-def get_team_summary_schedule(start: int, end: int, period: float) -> List[Tuple]:
+def get_team_summary_schedule(
+    team_id: int, start: int, end: int, period: float
+) -> List[Tuple]:
+    """
+    Get statistics on the schedules for a given team, with limits on dates, and
+    a period over which averages and other similar statistics are calculated.
+    :param team_id: The ID for the team to search for
+    :param start: Start week of the filter, inclusive, as an ordinal ISO week date
+    :param end: End week of the filter, inclusive, as an ordinal ISO week date
+    :returns: The summary of the schedule as a list of 3-tuples. Each tuple
+        contains the average number of hours worked by a given user on a given
+        project, the user ID, and the project ID.
+    """
     session = db.get_session()
     results = session.query(func.sum(Schedule.hours)/period, User.name, Project.name) \
         .filter(Schedule.week >= start) \

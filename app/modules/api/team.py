@@ -161,7 +161,7 @@ def team_get_chart_data(team_id):
     if end < start:
         return api_error_helpers.invalid_url_arg('["start_ahead","look_ahead"]')
     period = float(end - start + 1)
-    results = schedule_util.get_team_summary_schedule(start, end, period)
+    results = schedule_util.get_team_summary_schedule(team_id, start, end, period)
     return jsonify([
         {
             'user': item[1],
