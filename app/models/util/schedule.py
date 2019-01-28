@@ -2,6 +2,7 @@ from typing import Dict, List, NamedTuple, Optional, Tuple
 
 from app import db
 from app.models import Project, Schedule, User, Team
+from sqlalchemy import func
 
 
 class WeekProject(NamedTuple):
@@ -132,3 +133,15 @@ def get_team_schedules(team_id: int) -> List[Schedule]:
                    join(Project).\
                    filter(Project.team_id == team_id).\
                    all()
+
+
+def get_team_summary_schedule(start: int, end: int, period: float) -> List[Tuple]:
+    session = db.get_session()
+    results = session.query(func.sum(Schedule.hours)/period, User.name, Project.name) \
+        .filter(Schedule.week >= start) \
+        .filter(Schedule.week <= end) \
+        .group_by(Schedule.user_id, Schedule.project_id) \
+        .join(User) \
+        .join(Project) \
+        .all()
+    return results

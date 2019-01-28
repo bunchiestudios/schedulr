@@ -9,6 +9,10 @@ from app.models.util import (
     join_token as join_token_util
 )
 
+from app.modules.api import (
+    team as team_api
+)
+
 bp = Blueprint('api.me', __name__)
 
 # Returns user's team data
@@ -28,3 +32,11 @@ def get_own_team():
             "user_is_owner": g.user.id == team.owner_id
         }
     )
+
+@bp.route('/team/chart-data', methods=['GET'])
+@session_helper.enforce_validate_token_api
+def get_own_team_schedules():
+    team = g.user.team
+    if team is None:
+        return api_error_helpers.item_not_found(item_name='Team-User', field_name='user-id', field_value='g.user.id')
+    return team_api.team_get_chart_data(team.id)

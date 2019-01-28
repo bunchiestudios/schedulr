@@ -1,5 +1,5 @@
 
-from flask import Blueprint, jsonify, g, url_for
+from flask import Blueprint, jsonify, g, url_for, request
 import secrets
 
 from app.helpers import api_error_helpers, session_helper, req_helper
@@ -9,6 +9,8 @@ from app.models.util import (
     join_token as join_token_util,
     schedule as schedule_util,
 )
+
+from isoweek import Week
 
 bp = Blueprint('api.team', __name__)
 
@@ -144,3 +146,27 @@ def team_get_schedules(team_id: int):
         return jsonify([schedule.serialize() for schedule in schedule_util.get_team_schedules(team_id)])
 
     return api_error_helpers.item_not_found("team", "id", str(team_id))
+
+
+@bp.route('/<int:team_id>/chart-data', methods=['GET'])
+@session_helper.enforce_validate_token_api
+def team_get_chart_data(team_id):
+    start_ahead = request.args.get('start_ahead', default=None)
+    look_ahead = request.args.get('look_ahead', default=0, type=int)
+    try:
+        start = Week.fromstring(start_ahead).toordinal()
+    except:
+        return api_error_helpers.invalid_url_arg('start_ahead')
+    end = start + look_ahead
+    if end < start:
+        return api_error_helpers.invalid_url_arg('["start_ahead","look_ahead"]')
+    period = float(end - start + 1)
+    results = schedule_util.get_team_summary_schedule(start, end, period)
+    return jsonify([
+        {
+            'user': item[1],
+            'project': item[2],
+            'hours': round(item[0], 2)
+        }
+        for item in results
+    ])

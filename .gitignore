@@ -9,6 +9,9 @@ run.sh
 *.sqlite
 *.sqlite-journal
 
+#jupyter notebooks
+*.ipynb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
