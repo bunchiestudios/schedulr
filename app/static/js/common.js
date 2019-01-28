@@ -6,7 +6,7 @@ let APP = {
     modules: [],
     handlers: {
         default_post: (data) => console.log(data),
-        post_error: (jqXHR, textStatus, errorThrown) => console.log(textStatus + " " + errorThrown),
+        post_error: (jqXHR, textStatus, errorThrown) => console.log(jqXHR.responseText + " " + textStatus + " " + errorThrown),
     },
     init(){
         // Setup snackbar
@@ -67,6 +67,14 @@ let APP = {
             error: fail
         });
     },
+    get(url, data=null, success=APP.handlers.default_post, fail=APP.handlers.post_error){
+        $.ajax({
+            url: url, 
+            data: data,
+            success: success, 
+            error: fail
+        });
+    },
     toggle_drawer(){
         $('.mdl-layout')[0].MaterialLayout.toggleDrawer();
     },
@@ -81,6 +89,9 @@ let APP = {
 
         }
         $temp.remove();
+    },
+    iso_week(offset){
+        return new Week(offset).isoWeek();
     }
 };
 
@@ -102,3 +113,15 @@ $(document).ready(function() {
         });
     })
 });
+
+class Week{
+    constructor(offset=0){
+        this.moment = moment().startOf('isoWeek').add(offset, 'w');
+    }
+    isoWeek(){
+        return this.moment.format('YYYY-[W]WW');
+    }
+    month(){
+        return this.moment.startOf('isoWeek').add(3, 'days').format("MMMM");
+    }
+}

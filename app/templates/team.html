@@ -16,6 +16,19 @@
 
 {% block content %}
     <div id="team-content">
+        <!-- Default Slider -->
+        <div id="team-page-sliders">
+            <div class="slider-container" id="team-slider-1">
+                <span class="slider-label"><span>Starting week: </span><span class="slider-label week"></span></span>
+                <input class="mdl-slider mdl-js-slider" type="range"
+                    min="0" max="10" value="0" tabindex="0"> 
+            </div>
+            <div class="slider-container" id="team-slider-2">
+                <span class="slider-label"><span>Look ahead: </span><span class="slider-label week"></span></span>
+                <input class="mdl-slider mdl-js-slider" type="range"
+                    min="0" max="10" value="0" tabindex="0"> 
+            </div>
+        </div>
         <div id="bar-chart"></div>
     </div>
 {% endblock %}

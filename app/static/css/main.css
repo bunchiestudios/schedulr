@@ -92,9 +92,26 @@
 }
 
 #team-content {
+    margin-top: 15px;
     width: 95vw;
     margin-left: auto;
     margin-right: auto;
+    height: 100%;
+}
+
+#team-page-sliders {
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.slider-label {
+    color: rgb(153, 153, 153);
+}
+
+.slider-label span:first-child {
+    display: inline-block;
+    width: 100px;
 }
 
 #bar-chart {

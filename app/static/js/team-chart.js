@@ -1,68 +1,51 @@
-function rand(max){
-    return Math.round(Math.random() * max);
-}
 
-function rand_pick(n) {
-    return Math.min(Math.floor(Math.random() * n, n - 1));
-  }
+var slider1 = $('#team-slider-1 input');
+var slider2 = $('#team-slider-2 input');
 
-function getData(){
-    var employees = [];
-    for (let index = 0; index < rand(10)+5; index++) {
-        employees.push(`Employee ${index+1}`);
-    }
-    var projects = [];
-    for (let index = 0; index < rand(30)+5; index++) {
-        projects.push(`Project ${index+1}`);
-    }
-    var data = [];
-    for (const employee of employees) {
-        for (let index = 0; index < 10; index++) {
-            data.push({
-                employee: employee,
-                project: projects[rand_pick(projects.length)],
-                hours: rand(10),
-                week: index
-            });
-        }
-    }
-    var map = {};
-    data.forEach((point)=>{
-        var key = point.employee + point.project;
-        if (!map.hasOwnProperty(key)) {
-            map[key] = {
-                employee: point.employee,
-                project: point.project,
-                hours: []
-            }
-        };
-        map[key].hours.push(point.hours);
+async function updateChart(start, end){
+
+    var week1 = new Week(slider1.val());
+    var week2 = new Week(Number(slider1.val()) + Number(slider2.val()));
+    var data = await $.get('/api/me/team/chart-data', data={
+        start_ahead: week1.isoWeek(),
+        look_ahead: slider2.val(),
     });
-    var result = [];
-    for (const key in map) {
-        if (map.hasOwnProperty(key)) {
-            var avg = map[key].hours.reduce((acc, val) => acc+val, 0)/map[key].hours.length;
-            result.push({
-                employee: map[key].employee,
-                project: map[key].project,
-                hours: Math.round(avg*10)/10
-            });
-        }
-    }
-    console.log(result);
-    return result;
+    APP.chart.setData(data);
+    $('#team-slider-1 .week').text(`${week1.isoWeek()} (${week1.month()})`);
+    $('#team-slider-2 .week').text(`${week2.isoWeek()} (${week2.month()})`);
 }
 
-APP.register_module(function(){
+APP.register_module(async function(){
+    var start_ahead = 0;
+    var look_ahead = 2;
+    slider1.val(start_ahead);
+    slider2.val(look_ahead);
+    var week1 = new Week(start_ahead);
+    var week2 = new Week(start_ahead + look_ahead);
+    $('#team-slider-1 .week').text(`${week1.isoWeek()} (${week1.month()})`);
+    $('#team-slider-2 .week').text(`${week2.isoWeek()} (${week2.month()})`);
+    var data = await $.get('/api/me/team/chart-data', data={
+        start_ahead: APP.iso_week(start_ahead),
+        look_ahead: look_ahead,
+    });
+    console.log(data);
+    let users = new Set();
+    for (const item of data) {
+        users.add(item.user);
+    }
+    $('#bar-chart').css("height", `${users.size * 150}px`);
     APP.chart = new Taucharts.Chart({
         type : 'horizontal-stacked-bar',
-        y    : 'employee',
+        y    : 'user',
         x    : 'hours',
         color: 'project',
         label: 'hours',
-        data : getData(),
+        data : data,
+        guide: {
+            x: {autoScale:false, min:0, max:45}
+        },
         plugins: [
-            Taucharts.api.plugins.get('tooltip')(),
+            //Taucharts.api.plugins.get('tooltip')(),
             Taucharts.api.plugins.get('legend')(),
             Taucharts.api.plugins.get('crosshair')(),
             Taucharts.api.plugins.get('export-to')(),
@@ -70,4 +53,12 @@ APP.register_module(function(){
         ]
     });
     APP.chart.renderTo('#bar-chart');
+
+    slider1.on('input', async function(event){
+        updateChart();
+    });
+
+    slider2.on('input', async function(event){
+        updateChart();
+    });
 });
