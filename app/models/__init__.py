@@ -1,13 +1,23 @@
-
+import datetime
 from typing import Optional
 
-from sqlalchemy import Table, Column, Boolean, DateTime, Integer, String, Float, ForeignKey, UniqueConstraint
+from isoweek import Week
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Table,
+    UniqueConstraint,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-import datetime
 
-from isoweek import Week
 
 Base = declarative_base()
 
@@ -104,3 +114,18 @@ class Schedule(Base):
     def __repr__(self):
         return f"<Schedule(id={self.id}, user_id={self.user_id}, project_id={self.project_id}, week={Week.fromordinal(self.week).isoformat()})>"
 
+class DayOff(Base):
+    __tablename__ = 'DayOff'
+    team_id = Column(Integer, ForeignKey('team.id'), primary_key=True)
+    date = Column(Date, primary_key=True)
+    hours_off = Column(Integer, nullable=False)
+    week = Column(Integer, nullable=False)
+
+    team = relationship('Team', back_populates='days_off')
+
+    def __repr__(self):
+        return (
+            f"<DayOff(team_id={self.team_id}, date={self.date.isoformat()}, "
+            f"hours_off={self.hours_off}, "
+            f"week={Week.fromordinal(self.week).isoformat()}"
+        )
