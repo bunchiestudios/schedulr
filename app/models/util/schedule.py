@@ -155,6 +155,7 @@ def get_team_summary_schedule(
     """
     session = db.get_session()
     results = session.query(func.sum(Schedule.hours)/period, User.name, Project.name) \
+        .filter(Project.team_id == team_id) \
         .filter(Schedule.week >= start) \
         .filter(Schedule.week <= end) \
         .group_by(Schedule.user_id, Schedule.project_id) \
