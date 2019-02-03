@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import List, Optional
 
 from app import db
-from app.models import User, Team, Token
+from app.models import User, Team, Token, Project
 
 def get_or_create_user(*, name: str, email: str) -> User:
     session = db.get_session()
@@ -33,3 +33,13 @@ def set_team(user_id: int, team_id: int) -> Optional[User]:
     session.commit()
 
     return user
+
+
+def get_projects(user_id: int) -> List[Project]:
+    session = db.get_session()
+
+    return session.query(Project).\
+        join(Team).\
+        join(User).\
+        filter(User.id == 1).\
+        all()

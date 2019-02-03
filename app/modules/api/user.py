@@ -103,6 +103,39 @@ def log_hours(json_content):
     return api_error_helpers.could_not_create("schedule")
 
 
+@bp.route('/<int:user_id>/sparse_schedule', methods=['GET'])
+@session_helper.enforce_validate_token_api
+def get_sparse_schedule(user_id: int):
+    if not user_util.get_from_id(user_id):
+        return api_error_helpers.item_not_found("user", "id", user_id)
+
+    start_str = request.args.get('start_week', default=None, type=str)
+    end_str = request.args.get('end_week', default=None, type=str)
+    year = request.args.get('year', default=None, type=int)
+
+    if (start_str or end_str) and year:
+        return api_error_helpers.invalid_url_args_combination(
+            ["start_str", "end_str", "year"]
+        )
+    if not ((start_str and end_str) or year):
+        if not (start_str and end_str):
+            return api_error_helpers.missing_url_arg("start_str and end_str")
+        else:
+            return api_error_helpers.missing_url_arg("year")
+
+
+    start_week = Week.fromstring(start_str).toordinal() if start_str else None
+    end_week = Week.fromstring(end_str).toordinal() if end_str else None
+
+    if year:
+        start_week = date_helpers.first_week_of_year(year)
+        end_week = date_helpers.last_week_of_year(year)
+
+    schedule_map = schedule_util.get_user_schedules(user_id, start_week, end_week)
+
+    return jsonify(list(sched.serialize() for sched in schedule_map.values()))
+
+
 @bp.route('/<int:user_id>/schedule', methods=['GET'])
 @session_helper.enforce_validate_token_api
 def get_schedule(user_id: int):
@@ -117,12 +150,31 @@ def get_schedule(user_id: int):
         return api_error_helpers.invalid_url_args_combination(
             ["start_str", "end_str", "year"]
         )
+    if not ((start_str and end_str) or year):
+        if not (start_str and end_str):
+            return api_error_helpers.missing_url_arg("start_str and end_str")
+        else:
+            return api_error_helpers.missing_url_arg("year")
 
     start_week = Week.fromstring(start_str).toordinal() if start_str else None
     end_week = Week.fromstring(end_str).toordinal() if end_str else None
+
+    user_projects = user_util.get_projects(user_id)
+
+    full_schedule = {
+        week.isoformat(): {project.id: 0 for project in user_projects}
+        for week
+        in date_helpers.all_weeks_between(start_week, end_week)
+    }
 
     if year:
         start_week = date_helpers.first_week_of_year(year)
         end_week = date_helpers.last_week_of_year(year)
 
-    schedule_util.get_user_schedules(user_id, start_week, end_week)
+    schedule_dict = schedule_util.get_user_schedules(user_id, start_week, end_week)
+
+    for week_project, schedule in schedule_dict.items():
+        week_str = Week.fromordinal(week_project.week).isoformat()
+        full_schedule[week_str][week_project.project_id] = schedule.hours
+
+    return jsonify(full_schedule)
