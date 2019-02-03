@@ -9,9 +9,10 @@ from app.models.util import (
     schedule as schedule_util,
 )
 
-bp = Blueprint('api.user', __name__)
+bp = Blueprint("api.user", __name__)
 
-@bp.route('/<int:user_id>', methods=['GET'])
+
+@bp.route("/<int:user_id>", methods=["GET"])
 @session_helper.enforce_validate_token_api
 def user_get(user_id):
     user = user_util.get_from_id(user_id)
@@ -28,19 +29,22 @@ def user_get(user_id):
 
     return api_error_helpers.item_not_found("user", "id", str(user_id))
 
-@bp.route('/setteam', methods=['POST'])
+
+@bp.route("/setteam", methods=["POST"])
 @req_helper.api_check_json("team_id")
 @session_helper.enforce_validate_token_api
 def set_team(json_content):
-    join_token = join_token_util.by_team_id(json_content['team_id'])
-    
-    if not join_token:
-        return api_error_helpers.item_not_found('join_token', 'team_id', json_content['team_id'])
+    join_token = join_token_util.by_team_id(json_content["team_id"])
 
-    if join_token.token_str != json_content['join_token']:
+    if not join_token:
+        return api_error_helpers.item_not_found(
+            "join_token", "team_id", json_content["team_id"]
+        )
+
+    if join_token.token_str != json_content["join_token"]:
         return api_error_helpers.invalid_join_token()
 
-    user = user_util.set_team(g.user.id, json_content['team_id'])
+    user = user_util.set_team(g.user.id, json_content["team_id"])
 
     if user:
         return jsonify(
@@ -52,18 +56,20 @@ def set_team(json_content):
             }
         )
 
-    return api_error_helpers.could_not_update('user', 'id', g.user.id)
+    return api_error_helpers.could_not_update("user", "id", g.user.id)
 
 
-@bp.route('/jointeam', methods=['POST'])
+@bp.route("/jointeam", methods=["POST"])
 @req_helper.api_check_json("join_token")
 @session_helper.enforce_validate_token_api
 def join_team_token(json_content):
-    team = join_token_util.team_by_join_token(json_content['join_token'])
+    team = join_token_util.team_by_join_token(json_content["join_token"])
     join_token = team.join_tokens[0] if team.join_tokens else None
 
     if not join_token:
-        return api_error_helpers.item_not_found('join token', 'token', json_content['join_token'])
+        return api_error_helpers.item_not_found(
+            "join token", "token", json_content["join_token"]
+        )
 
     user_util.set_team(g.user.id, team.id)
     return jsonify(
@@ -76,7 +82,7 @@ def join_team_token(json_content):
     )
 
 
-@bp.route('/register_hours', methods=['POST'])
+@bp.route("/register_hours", methods=["POST"])
 @req_helper.api_check_json("project_id", "iso_week", "hours")
 @session_helper.enforce_validate_token_api
 def log_hours(json_content):
@@ -96,7 +102,7 @@ def log_hours(json_content):
         return api_error_helpers.invalid_body_arg("hours")
 
     sched = schedule_util.set_schedule(g.user.id, project_id, wk.toordinal(), hours)
-    
+
     if sched:
         return jsonify(sched.serialize())
 
@@ -123,7 +129,6 @@ def get_sparse_schedule(user_id: int):
         else:
             return api_error_helpers.missing_url_arg("year")
 
-
     start_week = Week.fromstring(start_str).toordinal() if start_str else None
     end_week = Week.fromstring(end_str).toordinal() if end_str else None
 
@@ -141,7 +146,7 @@ def get_sparse_schedule(user_id: int):
 def get_schedule(user_id: int):
     if not user_util.get_from_id(user_id):
         return api_error_helpers.item_not_found("user", "id", user_id)
-    
+
     year = request.args.get('year', default=None, type=int)
 
     if not year:
@@ -166,7 +171,7 @@ def get_schedule(user_id: int):
     print(schedule_dict)
 
     for week_project, schedule in schedule_dict.items():
-        week_index = Week.fromordinal(week_project.week).week - 1 
+        week_index = Week.fromordinal(week_project.week).week - 1
         full_schedule[week_index][project_index[week_project.project_id]] = schedule.hours
 
     return jsonify(projects=list(map(lambda x:x.serialize(), user_projects)), schedule=full_schedule)
