@@ -1,4 +1,4 @@
-
+from typing import List
 
 from flask import Response, make_response, jsonify
 
@@ -135,8 +135,22 @@ def invalid_url_arg(bad_arg: str) -> Response:
             {
                 "error": {
                     "code": 9,
-                    "msg": "Your JSON request passed an incorrect value for "
+                    "msg": "Your GET request passed an incorrect value for "
                     f"argument {bad_arg}",
+                }
+            }
+        ),
+        400
+    )
+
+def invalid_url_args_combination(bad_args: List[str]) -> Response:
+    return make_response(
+        jsonify(
+            {
+                "error": {
+                    "code": 9,
+                    "msg": "Your GET request passed an incorrect combination of "
+                    f"values for the arguments {bad_args}",
                 }
             }
         ),
