@@ -134,7 +134,7 @@ def invalid_url_arg(bad_arg: str) -> Response:
         jsonify(
             {
                 "error": {
-                    "code": 9,
+                    "code": 10,
                     "msg": "Your GET request passed an incorrect value for "
                     f"argument {bad_arg}",
                 }
@@ -148,9 +148,23 @@ def invalid_url_args_combination(bad_args: List[str]) -> Response:
         jsonify(
             {
                 "error": {
-                    "code": 9,
+                    "code": 11,
                     "msg": "Your GET request passed an incorrect combination of "
                     f"values for the arguments {bad_args}",
+                }
+            }
+        ),
+        400
+    )
+
+def missing_url_arg(missing_arg: str) -> Response:
+    return make_response(
+        jsonify(
+            {
+                "error": {
+                    "code": 12,
+                    "msg": "Your GET request is missing the URL argument "
+                    f"{missing_arg}",
                 }
             }
         ),
