@@ -119,7 +119,7 @@ def get_sparse_schedule(user_id: int):
         )
     if not ((start_str and end_str) or year):
         if not (start_str and end_str):
-            return api_error_helpers.missing_url_arg("start_str and end_str")
+            return api_error_helpers.missing_url_arg("start_week and end_week")
         else:
             return api_error_helpers.missing_url_arg("year")
 
@@ -152,12 +152,12 @@ def get_schedule(user_id: int):
         )
     if not ((start_str and end_str) or year):
         if not (start_str and end_str):
-            return api_error_helpers.missing_url_arg("start_str and end_str")
+            return api_error_helpers.missing_url_arg("start_week and end_week")
         else:
             return api_error_helpers.missing_url_arg("year")
 
-    start_week = Week.fromstring(start_str).toordinal() if start_str else None
-    end_week = Week.fromstring(end_str).toordinal() if end_str else None
+    start_week = Week.fromstring(start_str) if start_str else None
+    end_week = Week.fromstring(end_str) if end_str else None
 
     user_projects = user_util.get_projects(user_id)
 
@@ -171,7 +171,9 @@ def get_schedule(user_id: int):
         start_week = date_helpers.first_week_of_year(year)
         end_week = date_helpers.last_week_of_year(year)
 
-    schedule_dict = schedule_util.get_user_schedules(user_id, start_week, end_week)
+    schedule_dict = schedule_util.get_user_schedules(
+        user_id, start_week.isoformat(), end_week.isoformat()
+    )
 
     for week_project, schedule in schedule_dict.items():
         week_str = Week.fromordinal(week_project.week).isoformat()
