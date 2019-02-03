@@ -1,7 +1,16 @@
 
 from functools import wraps
 from secrets import token_urlsafe
-from flask import session, url_for, redirect, abort, make_response, jsonify, current_app
+from flask import (
+    request,
+    session,
+    url_for,
+    redirect,
+    abort,
+    make_response,
+    jsonify,
+    current_app,
+)
 
 from app.helpers import api_error_helpers
 from app.models import User, Token
@@ -12,10 +21,13 @@ def get_session_token_key():
     return 'schedulr_token'
 
 def session_token_exists():
-    return get_session_token_key() in session
+    return get_session_token_key() in session or 'X-Authorization' in request.headers
 
 def get_session_token():
-    return session[get_session_token_key()]
+    if 'X-Authorization' in request.headers:
+        return request.headers['X-Authorization']
+    else:
+        return session[get_session_token_key()]
 
 def make_session(*, user: User):
     token = token_urlsafe(128)
