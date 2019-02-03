@@ -9,4 +9,4 @@ before_script:
   - export FLASK_APP="$TRAVIS_BUILD_DIR/app"
   - export FLASK_DEBUG=1
 
-script: black --check
+script: black --check $TRAVIS_BUILD_DIR
