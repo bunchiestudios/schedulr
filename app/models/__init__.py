@@ -1,7 +1,17 @@
 
 from typing import Optional
 
-from sqlalchemy import Table, Column, Boolean, DateTime, Integer, String, Float, ForeignKey, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Table,
+    UniqueConstraint,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -100,7 +110,23 @@ class Schedule(Base):
 
     user = relationship('User', back_populates="schedules")
     project = relationship('Project', back_populates="schedules")
+
+    __table_args__ = (
+        UniqueConstraint(
+            'project_id', 'week', 'user_id', name='project_week_user'
+        ),
+    )
     
     def __repr__(self):
         return f"<Schedule(id={self.id}, user_id={self.user_id}, project_id={self.project_id}, week={Week.fromordinal(self.week).isoformat()})>"
+
+    def serialize(self):
+        return {
+            "iso_week": Week.fromordinal(self.week).isoformat(),
+            "week_date": Week.fromordinal(self.week).monday().isoformat(),
+            "user_id": self.user_id,
+            "id": self.id,
+            "project_id": self.project_id,
+            "hours": self.hours,
+        }
 

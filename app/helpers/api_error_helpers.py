@@ -100,6 +100,7 @@ def bad_body_arg() -> Response:
         400
     )
 
+
 def missing_json_arg(arg_missing: str) -> Response:
     return make_response(
         jsonify(
@@ -107,6 +108,35 @@ def missing_json_arg(arg_missing: str) -> Response:
                 "error": {
                     "code": 8,
                     "msg": f"Your JSON request is missing argument: {arg_missing}."
+                }
+            }
+        ),
+        400
+    )
+
+
+def invalid_body_arg(bad_arg: str) -> Response:
+    return make_response(
+        jsonify(
+            {
+                "error": {
+                    "code": 9,
+                    "msg": "Your JSON request passed an incorrect value for "
+                    f"argument {bad_arg}",
+                }
+            }
+        ),
+        400
+    )
+
+def invalid_url_arg(bad_arg: str) -> Response:
+    return make_response(
+        jsonify(
+            {
+                "error": {
+                    "code": 9,
+                    "msg": "Your JSON request passed an incorrect value for "
+                    f"argument {bad_arg}",
                 }
             }
         ),

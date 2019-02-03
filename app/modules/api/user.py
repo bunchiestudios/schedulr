@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify, g 
+from isoweek import Week
+from flask import Blueprint, jsonify, g, request
 
 from app.helpers import api_error_helpers, session_helper, req_helper
 
 from app.models.util import (
     user as user_util,
-    join_token as join_token_util
+    join_token as join_token_util,
+    schedule as schedule_util,
 )
 
 bp = Blueprint('api.user', __name__)
@@ -72,3 +74,45 @@ def join_team_token(json_content):
             "team_id": g.user.team.id,
         }
     )
+
+
+@bp.route('/register_hours', methods=['POST'])
+@req_helper.api_check_json("project_id", "iso_week", "hours")
+@session_helper.enforce_validate_token_api
+def log_hours(json_content):
+    try:
+        project_id = int(json_content["project_id"])
+    except ValueError:
+        return api_error_helpers.invalid_body_arg("project_id")
+
+    try:
+        wk = Week.fromstring(json_content["iso_week"])
+    except ValueError:
+        return api_error_helpers.invalid_body_arg("iso_week")
+
+    try:
+        hours = int(json_content["hours"])
+    except ValueError:
+        return api_error_helpers.invalid_body_arg("hours")
+
+    sched = schedule_util.set_schedule(g.user.id, project_id, wk.toordinal(), hours)
+    
+    if sched:
+        return jsonify(sched.serialize())
+
+    return api_error_helpers.could_not_create("schedule")
+
+
+@bp.route('/<int:user_id>/schedule', methods=['GET'])
+@session_helper.enforce_validate_token_api
+def get_schedule(user_id: int):
+    if not user_util.get_from_id(user_id):
+        return api_error_helpers.item_not_found("user", "id", user_id)
+
+    start_str = request.args.get('start_week', default=None)
+    end_str = request.args.get('end_week', default=None)
+
+    start_week = Week.fromstring(start_str).toordinal() if start_str else None
+    end_week = Week.fromstring(end_str).toordinal() if end_str else None
+
+    schedule_util.get_user_schedules(user_id, start_week, end_week)
