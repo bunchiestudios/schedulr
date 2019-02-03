@@ -1,7 +1,7 @@
 from isoweek import Week
 from flask import Blueprint, jsonify, g, request
 
-from app.helpers import api_error_helpers, session_helper, req_helper
+from app.helpers import api_error_helpers, date_helpers, session_helper, req_helper
 
 from app.models.util import (
     user as user_util,
@@ -109,10 +109,20 @@ def get_schedule(user_id: int):
     if not user_util.get_from_id(user_id):
         return api_error_helpers.item_not_found("user", "id", user_id)
 
-    start_str = request.args.get('start_week', default=None)
-    end_str = request.args.get('end_week', default=None)
+    start_str = request.args.get('start_week', default=None, type=str)
+    end_str = request.args.get('end_week', default=None, type=str)
+    year = request.args.get('year', default=None, type=int)
+
+    if (start_str or end_str) and year:
+        return api_error_helpers.invalid_url_args_combination(
+            ["start_str", "end_str", "year"]
+        )
 
     start_week = Week.fromstring(start_str).toordinal() if start_str else None
     end_week = Week.fromstring(end_str).toordinal() if end_str else None
+
+    if year:
+        start_week = date_helpers.first_week_of_year(year)
+        end_week = date_helpers.last_week_of_year(year)
 
     schedule_util.get_user_schedules(user_id, start_week, end_week)
