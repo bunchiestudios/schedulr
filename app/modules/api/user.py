@@ -1,5 +1,5 @@
 from isoweek import Week
-from flask import Blueprint, jsonify, g 
+from flask import Blueprint, jsonify, g, request
 
 from app.helpers import api_error_helpers, session_helper, req_helper
 
@@ -101,3 +101,18 @@ def log_hours(json_content):
         return jsonify(sched.serialize())
 
     return api_error_helpers.could_not_create("schedule")
+
+
+@bp.route('/<int:user_id>/schedule', methods=['GET'])
+@session_helper.enforce_validate_token_api
+def get_schedule(user_id: int):
+    if not user_util.get_from_id(user_id):
+        return api_error_helpers.item_not_found("user", "id", user_id)
+
+    start_str = request.args.get('start_week', default=None)
+    end_str = request.args.get('end_week', default=None)
+
+    start_week = Week.fromstring(start_str).toordinal() if start_str else None
+    end_week = Week.fromstring(end_str).toordinal() if end_str else None
+
+    schedule_util.get_user_schedules(user_id, start_week, end_week)
