@@ -111,7 +111,7 @@ def test_api(func):
         if current_app.config.get('TEST_MODE', None):
             return func(*args, **kwargs)
         return api_error_helpers.not_authorized()
-
+    return wrapper
 
 def retirieve_token() -> Token:
     return token_utils.verify_token(get_session_token())
