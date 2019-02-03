@@ -123,6 +123,14 @@ class DayOff(Base):
 
     team = relationship('Team', back_populates='days_off')
 
+    def serialize(self):
+        return {
+            "team_id": self.team_id,
+            "date": self.date.isoformat(),
+            "hours_off": self.hours_off,
+            "week": Week.fromordinal(self.week).isoformat(),
+        }
+
     def __repr__(self):
         return (
             f"<DayOff(team_id={self.team_id}, date={self.date.isoformat()}, "
