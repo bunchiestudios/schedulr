@@ -1,9 +1,12 @@
-from flask import Blueprint, jsonify, g, url_for, request
+from flask import Blueprint, jsonify, g, request, url_for
+
+from dateutil.parser import parse as date_parse
+from isoweek import Week
 import secrets
 
 from app.helpers import api_error_helpers, session_helper, req_helper
-
 from app.models.util import (
+    days_off as days_off_util,
     team as team_util,
     join_token as join_token_util,
     schedule as schedule_util,
@@ -139,6 +142,44 @@ def team_get_projects(team_id):
         return jsonify([project.id for project in team.projects])
 
     return api_error_helpers.item_not_found("team", "id", str(team_id))
+
+
+@bp.route("/<int:team_id>/days_off", methods=["GET"])
+@session_helper.enforce_validate_token_api
+def get_days_off(team_id: int):
+    if not team_util.get_from_id(team_id):
+        return api_error_helpers.item_not_found("team", "id", str(team_id))
+    start_str = request.args.get("start_week", default=None, type=str)
+    end_str = request.args.get("end_week", default=None, type=str)
+
+    start_week = Week.fromstring(start_str).toordinal() if start_str else None
+    end_week = Week.fromstring(end_str).toordinal() if end_str else None
+
+    days_off = days_off_util.get_days_off(team_id, start_week, end_week)
+
+    return jsonify([day_off.serialize() for day_off in days_off])
+
+
+@bp.route("/<int:team_id>/day_off", methods=["POST"])
+@req_helper.api_check_json("date", "hours_off")
+@session_helper.enforce_validate_token_api
+def set_days_off(team_id: int, json_content):
+    team = team_util.get_from_id(team_id)
+
+    if not team:
+        return api_error_helpers.item_not_found("team", "id", str(team_id))
+
+    try:
+        date = date_parse(json_content["date"]).date()
+        hours_off = int(json_content["hours_off"])
+    except ValueError:
+        return api_error_helpers.bad_body_arg()
+
+    result = days_off_util.set_day_off(team_id, date, hours_off)
+    if not result:
+        return api_error_helpers.bad_body_arg()
+
+    return jsonify({"result": "ok"})
 
 
 @bp.route("/<int:team_id>/schedules", methods=["GET"])

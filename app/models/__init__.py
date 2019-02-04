@@ -1,8 +1,11 @@
+import datetime
 from typing import Optional
 
+from isoweek import Week
 from sqlalchemy import (
     Boolean,
     Column,
+    Date,
     DateTime,
     Float,
     ForeignKey,
@@ -14,9 +17,6 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-import datetime
-
-from isoweek import Week
 
 Base = declarative_base()
 
@@ -39,6 +39,7 @@ class Team(Base):
     users = relationship("User", secondary=user_team_table, back_populates="_teams")
     owner = relationship("User", foreign_keys=[owner_id])
     join_tokens = relationship("JoinToken", back_populates="team")
+    days_off = relationship("DayOff", back_populates="team")
 
     def __repr__(self):
         return f"<Team(id={self.id}, name={self.name})>"
@@ -131,3 +132,28 @@ class Schedule(Base):
             "project_id": self.project_id,
             "hours": self.hours,
         }
+
+
+class DayOff(Base):
+    __tablename__ = "DayOff"
+    team_id = Column(Integer, ForeignKey("teams.id"), primary_key=True)
+    date = Column(Date, primary_key=True)
+    hours_off = Column(Integer, nullable=False)
+    week = Column(Integer, nullable=False)
+
+    team = relationship("Team", back_populates="days_off")
+
+    def serialize(self):
+        return {
+            "team_id": self.team_id,
+            "date": self.date.isoformat(),
+            "hours_off": self.hours_off,
+            "week": Week.fromordinal(self.week).isoformat(),
+        }
+
+    def __repr__(self):
+        return (
+            f"<DayOff(team_id={self.team_id}, date={self.date.isoformat()}, "
+            f"hours_off={self.hours_off}, "
+            f"week={Week.fromordinal(self.week).isoformat()}"
+        )
