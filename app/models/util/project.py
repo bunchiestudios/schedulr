@@ -3,6 +3,7 @@ from typing import Optional
 from app import db
 from app.models import Project, Team
 
+
 def get_project_by_id(id: int) -> Optional[Project]:
     """
     Return a project given the ID (database unique key).

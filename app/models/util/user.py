@@ -5,6 +5,7 @@ from app.models import User, Team, Token, Project, Schedule
 
 from isoweek import Week
 
+
 def get_or_create_user(*, name: str, email: str) -> User:
     session = db.get_session()
     user = session.query(User).filter(User.email == email).one_or_none()
@@ -15,13 +16,16 @@ def get_or_create_user(*, name: str, email: str) -> User:
     session.commit()
     return user
 
+
 def get_from_token(token: Token) -> User:
     session = db.get_session()
     return session.query(User).filter_by(id=token.user_id).one_or_none()
 
+
 def get_from_id(user_id: int) -> Optional[User]:
     session = db.get_session()
     return session.query(User).filter(User.id == user_id).one_or_none()
+
 
 def set_team(user_id: int, team_id: int) -> Optional[User]:
     session = db.get_session()
@@ -40,19 +44,20 @@ def set_team(user_id: int, team_id: int) -> Optional[User]:
 def get_projects(user_id: int) -> List[Project]:
     session = db.get_session()
 
-    return session.query(Project).\
-        join(Team).\
-        join(User).\
-        filter(User.id == 1).\
-        all()
+    return session.query(Project).join(Team).join(User).filter(User.id == 1).all()
 
-def get_projects_for_period(*, user_id: int, start_week: Week, end_week: Week) -> List[Project]:
+
+def get_projects_for_period(
+    *, user_id: int, start_week: Week, end_week: Week
+) -> List[Project]:
     session = db.get_session()
 
-    return session.query(Project)\
-        .filter(Schedule.user_id == user_id)\
-        .join(Schedule)\
-        .filter(Schedule.week >= start_week.toordinal())\
-        .filter(Schedule.week <= end_week.toordinal())\
-        .group_by(Schedule.project_id)\
+    return (
+        session.query(Project)
+        .filter(Schedule.user_id == user_id)
+        .join(Schedule)
+        .filter(Schedule.week >= start_week.toordinal())
+        .filter(Schedule.week <= end_week.toordinal())
+        .group_by(Schedule.project_id)
         .all()
+    )
