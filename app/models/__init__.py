@@ -18,7 +18,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 
-
 Base = declarative_base()
 
 user_team_table = Table(
@@ -134,14 +133,15 @@ class Schedule(Base):
             "hours": self.hours,
         }
 
+
 class DayOff(Base):
-    __tablename__ = 'DayOff'
-    team_id = Column(Integer, ForeignKey('teams.id'), primary_key=True)
+    __tablename__ = "DayOff"
+    team_id = Column(Integer, ForeignKey("teams.id"), primary_key=True)
     date = Column(Date, primary_key=True)
     hours_off = Column(Integer, nullable=False)
     week = Column(Integer, nullable=False)
 
-    team = relationship('Team', back_populates='days_off')
+    team = relationship("Team", back_populates="days_off")
 
     def serialize(self):
         return {
