@@ -9,11 +9,15 @@ from app.models.util import (
     days_off as days_off_util,
     team as team_util,
     join_token as join_token_util,
+    schedule as schedule_util,
 )
 
-bp = Blueprint('api.team', __name__)
+from isoweek import Week
 
-@bp.route('/<int:team_id>', methods=['GET'])
+bp = Blueprint("api.team", __name__)
+
+
+@bp.route("/<int:team_id>", methods=["GET"])
 @session_helper.enforce_validate_token_api
 def team_get(team_id):
     team = team_util.get_from_id(team_id)
@@ -32,12 +36,12 @@ def team_get(team_id):
     return api_error_helpers.item_not_found("team", "id", str(team_id))
 
 
-@bp.route('/<int:team_id>/owner', methods=['POST'])
+@bp.route("/<int:team_id>/owner", methods=["POST"])
 @req_helper.api_check_json("owner_id")
 @session_helper.enforce_validate_token_api
 def team_transfer_owner(team_id, json_content):
     team = team_util.get_from_id(team_id)
-    owner_id = json_content['owner_id']
+    owner_id = json_content["owner_id"]
 
     if not team:
         return api_error_helpers.item_not_found("team", "id", str(team_id))
@@ -59,11 +63,11 @@ def team_transfer_owner(team_id, json_content):
         )
 
 
-@bp.route('/', methods=['POST'], strict_slashes=False)
+@bp.route("/", methods=["POST"], strict_slashes=False)
 @req_helper.api_check_json("name")
 @session_helper.enforce_validate_token_api
 def team_create(json_content):
-    team = team_util.create(json_content['name'], g.user.id)
+    team = team_util.create(json_content["name"], g.user.id)
 
     if team:
         return jsonify(
@@ -81,7 +85,7 @@ def team_create(json_content):
 
 # Ideally this would be a GET request, but browser will cache responses, and
 # this _could_ have side-effects if no token exists already.
-@bp.route('/<int:team_id>/join_token', methods=['POST'])
+@bp.route("/<int:team_id>/join_token", methods=["POST"])
 @session_helper.enforce_validate_token_api
 def get_join_token(team_id):
     team = team_util.get_from_id(team_id)
@@ -101,11 +105,13 @@ def get_join_token(team_id):
         if not join_token:
             return api_error_helpers.item_not_found("team", "id", str(team_id))
 
-    #return jsonify(join_token.serialize())
-    return jsonify(link=url_for('team.join_link', code=join_token.token_str, _external=True))
+    # return jsonify(join_token.serialize())
+    return jsonify(
+        link=url_for("team.join_link", code=join_token.token_str, _external=True)
+    )
 
 
-@bp.route('/<int:team_id>/join_token/new', methods=['POST'])
+@bp.route("/<int:team_id>/join_token/new", methods=["POST"])
 @session_helper.enforce_validate_token_api
 def get_new_join_token(team_id):
     team = team_util.get_from_id(team_id)
@@ -122,10 +128,12 @@ def get_new_join_token(team_id):
         return api_error_helpers.item_not_found("team", "id", str(team_id))
 
     # return jsonify(join_token.serialize())
-    return jsonify(link=url_for('team.join_link', code=join_token.token_str, _external=True))
+    return jsonify(
+        link=url_for("team.join_link", code=join_token.token_str, _external=True)
+    )
 
 
-@bp.route('/<int:team_id>/projects', methods=['POST'])
+@bp.route("/<int:team_id>/projects", methods=["POST"])
 @session_helper.enforce_validate_token_api
 def team_get_projects(team_id):
     team = team_util.get_from_id(team_id)
@@ -133,7 +141,7 @@ def team_get_projects(team_id):
     if team:
         return jsonify([project.id for project in team.projects])
 
-    return api_error_helpers.item_not_found("user", "id", str(g.user.id))
+    return api_error_helpers.item_not_found("team", "id", str(team_id))
 
 
 @bp.route('/<int:team_id>/days_off', methods=['GET'])
@@ -172,3 +180,53 @@ def set_days_off(team_id: int, json_content):
         return api_error_helpers.bad_body_arg()
 
     return jsonify({"result": "ok"})
+
+
+@bp.route("/<int:team_id>/schedules", methods=["GET"])
+@session_helper.enforce_validate_token_api
+def team_get_schedules(team_id: int):
+    if not team_util.get_from_id(team_id):
+        return api_error_helpers.item_not_found("team", "id", str(team_id))
+
+    start_ahead = request.args.get("start_ahead", default=None)
+    look_ahead = request.args.get("look_ahead", default=0, type=int)
+    try:
+        start = Week.fromstring(start_ahead).toordinal()
+    except ValueError:
+        return api_error_helpers.invalid_url_arg("start_ahead")
+
+    end = start + look_ahead
+    if end < start:
+        return api_error_helpers.invalid_url_arg('["start_ahead", "look_ahead"]')
+
+    return jsonify(
+        [
+            schedule.serialize()
+            for schedule in schedule_util.get_team_schedules(team_id, start, end)
+        ]
+    )
+
+
+@bp.route("/<int:team_id>/chart-data", methods=["GET"])
+@session_helper.enforce_validate_token_api
+def team_get_chart_data(team_id):
+    if not team_util.get_from_id(team_id):
+        return api_error_helpers.item_not_found("team", "id", str(team_id))
+
+    start_ahead = request.args.get("start_ahead", default=None)
+    look_ahead = request.args.get("look_ahead", default=0, type=int)
+    try:
+        start = Week.fromstring(start_ahead).toordinal()
+    except ValueError:
+        return api_error_helpers.invalid_url_arg("start_ahead")
+    end = start + look_ahead
+    if end < start:
+        return api_error_helpers.invalid_url_arg('["start_ahead","look_ahead"]')
+    period = float(end - start + 1)
+    results = schedule_util.get_team_summary_schedule(team_id, start, end, period)
+    return jsonify(
+        [
+            {"user": item[1], "project": item[2], "hours": round(item[0], 2)}
+            for item in results
+        ]
+    )
