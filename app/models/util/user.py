@@ -1,7 +1,9 @@
 from typing import List, Optional
 
 from app import db
-from app.models import User, Team, Token, Project
+from app.models import User, Team, Token, Project, Schedule
+
+from isoweek import Week
 
 def get_or_create_user(*, name: str, email: str) -> User:
     session = db.get_session()
@@ -43,3 +45,14 @@ def get_projects(user_id: int) -> List[Project]:
         join(User).\
         filter(User.id == 1).\
         all()
+
+def get_projects_for_period(*, user_id: int, start_week: Week, end_week: Week) -> List[Project]:
+    session = db.get_session()
+
+    return session.query(Project)\
+        .filter(Schedule.user_id == user_id)\
+        .join(Schedule)\
+        .filter(Schedule.week >= start_week.toordinal())\
+        .filter(Schedule.week <= end_week.toordinal())\
+        .group_by(Schedule.project_id)\
+        .all()

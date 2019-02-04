@@ -100,6 +100,13 @@ class Project(Base):
     def __repr__(self):
         return f"<Project(id={self.id}, name={self.name}, team_id={self.team_id})>"
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "team_id": self.team_id,
+            "name": self.name
+        }
+
 class Schedule(Base):
     __tablename__ = 'schedules'
     id = Column(Integer, primary_key=True)
