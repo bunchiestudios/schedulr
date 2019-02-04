@@ -52,7 +52,17 @@ def set_day_off(team_id: int, date: datetime.date, hours_off: int) -> bool:
         return False
 
     week = Week.withdate(date).toordinal()
-    session.add(DayOff(team=team, date=date, hours_off=hours_off, week=week))
+    day_off = session.query(DayOff).\
+        filter(DayOff.date == date).\
+        filter(DayOff.team_id == team_id).\
+        one_or_none()
+    if day_off:
+        if hours_off == 0:
+            session.delete(day_off)
+        else:
+            day_off.hours_off = hours_off
+    elif hours_off != 0:
+        session.add(DayOff(team=team, date=date, hours_off=hours_off, week=week))
     session.commit()
 
     return True
