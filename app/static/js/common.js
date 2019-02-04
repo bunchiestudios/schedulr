@@ -111,7 +111,14 @@ $(document).ready(function() {
                 APP.redirect('/');
             }
         });
-    })
+    });
+
+    $('#goto-team-base').on('click', (event)=>{
+        APP.redirect('/team/');
+    });
+    $('#goto-user-schedule').on('click', (event)=>{
+        APP.redirect('/team/schedule');
+    });
 });
 
 class Week{

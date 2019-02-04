@@ -1,0 +1,30 @@
+
+{% extends "base.html" %} 
+{% block head_extra %}
+    <!-- Handsontable -->
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+{% endblock %}
+
+{% block sidebar_actions %}
+<div class="mdl-navigation__link sidebar-item hvr-icon-forward pointer" id="view-projects">
+    View Projects
+    <i class="fas fa-chevron-circle-right hvr-icon"></i>
+</div>
+{% endblock %}
+
+{% block content %}
+    <div id="team-content">
+        <div id="schedule-table"></div>
+    </div>
+{% endblock %}
+
+{% block modal_content %}
+<div id="project-list">
+    <button class="mdl-button mdl-js-button mdl-button--primary" id="add-project-button">
+        Add New Project
+    </button>
+    <div class="mdl-list">
+    </div>
+</div>
+{% endblock %}

@@ -80,7 +80,6 @@ APP.register_module(async function(){
         });
     });
     $('#view-projects').on('click', async (event)=>{
-        console.log('WOOp');
         APP.toggle_drawer();
         list_projects();
     });
