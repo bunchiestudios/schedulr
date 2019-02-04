@@ -7,11 +7,9 @@ lets you setup how long team members will work on differnt projects, gives you
 statistics on what everyone is working on, and what projects are missing some
 love. This project is currently in development.
 
-## Legal Disclosures
+## Legal
 
-This disclosure is provided by one of the creators of this repository, Ricardo
-Delfin (rdelfin):
-
-> I am providing code in the repository to you under an open source license.
-> Because this is my personal repository, the license you receive to my code is
-> from me and not my employer (Facebook).
+You can find legal disclosures in the DISCLOSURES.md file in the root of this
+project.
+You can also find this project's license in the LICENSE file, at the root of
+this project.
