@@ -4,8 +4,8 @@ var slider2 = $('#team-slider-2 input');
 
 async function updateChart(start, end){
 
-    var week1 = new Week(slider1.val());
-    var week2 = new Week(Number(slider1.val()) + Number(slider2.val()));
+    var week1 = Week.relative(slider1.val());
+    var week2 = Week.relative(Number(slider1.val()) + Number(slider2.val()));
     var data = await $.get('/api/me/team/chart-data', data={
         start_ahead: week1.isoWeek(),
         look_ahead: slider2.val(),
@@ -20,8 +20,8 @@ APP.register_module(async function(){
     var look_ahead = 2;
     slider1.val(start_ahead);
     slider2.val(look_ahead);
-    var week1 = new Week(start_ahead);
-    var week2 = new Week(start_ahead + look_ahead);
+    var week1 = Week.relative(start_ahead);
+    var week2 = Week.relative(start_ahead + look_ahead);
     $('#team-slider-1 .week').text(`${week1.isoWeek()} (${week1.month()})`);
     $('#team-slider-2 .week').text(`${week2.isoWeek()} (${week2.month()})`);
     var data = await $.get('/api/me/team/chart-data', data={

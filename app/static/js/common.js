@@ -91,7 +91,7 @@ let APP = {
         $temp.remove();
     },
     iso_week(offset){
-        return new Week(offset).isoWeek();
+        return Week.relative(offset).isoWeek();
     }
 };
 
@@ -122,8 +122,15 @@ $(document).ready(function() {
 });
 
 class Week{
-    constructor(offset=0){
-        this.moment = moment().startOf('isoWeek').add(offset, 'w');
+    constructor(year, week){
+        this.moment = moment().set({'isoWeekYear': year, 'isoWeek': week}).startOf('isoWeek');
+    }
+    static thisWeek(){
+        return Week.relative(0);
+    }
+    static relative(offset=0){
+        var m = moment().startOf('isoWeek').add(offset, 'w')
+        return new Week(m.get('isoWeekYear'), m.get('isoWeek'));
     }
     isoWeek(){
         return this.moment.format('YYYY-[W]WW');

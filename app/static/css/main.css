@@ -161,3 +161,22 @@
     padding-left: 30px;
     display: none;
 }
+
+.handsontable .left {
+    text-align: left;
+}
+
+#schedule-content {
+    box-sizing: border-box;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    width: 80vw;
+    margin-left: auto;
+    margin-right: auto;
+    height: 100%;
+}
+
+#schedule-table {
+    height: 75vh;
+    overflow: hidden;
+}
