@@ -20,6 +20,7 @@ APP.register_module(async function(){
     var project_names = data.projects.map((item) => trim_str(item.name, 15));
     var week_names = [];
     for (let index = 0; index < data.schedule.length; index++) {
+        // TODO: bold current week
         var week = new Week(year, index + 1);
         week_names.push(`${week.isoWeek()} (${week.month()})`);
     }
