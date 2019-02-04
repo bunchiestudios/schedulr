@@ -40,6 +40,7 @@ class Team(Base):
     users = relationship("User", secondary=user_team_table, back_populates="_teams")
     owner = relationship("User", foreign_keys=[owner_id])
     join_tokens = relationship("JoinToken", back_populates="team")
+    days_off = relationship("DayOff", back_populates="team")
 
     def __repr__(self):
         return f"<Team(id={self.id}, name={self.name})>"
@@ -135,7 +136,7 @@ class Schedule(Base):
 
 class DayOff(Base):
     __tablename__ = 'DayOff'
-    team_id = Column(Integer, ForeignKey('team.id'), primary_key=True)
+    team_id = Column(Integer, ForeignKey('teams.id'), primary_key=True)
     date = Column(Date, primary_key=True)
     hours_off = Column(Integer, nullable=False)
     week = Column(Integer, nullable=False)
