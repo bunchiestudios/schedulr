@@ -1,7 +1,7 @@
 from isoweek import Week
 from flask import Blueprint, jsonify, g, request
 
-from app.helpers import api_error_helpers, date_helpers, session_helper, req_helper
+from app.helpers import api_error_helpers, session_helper, req_helper
 
 from app.models.util import (
     user as user_util,
@@ -128,8 +128,8 @@ def get_sparse_schedule(user_id: int):
     end_week = Week.fromstring(end_str).toordinal() if end_str else None
 
     if year:
-        start_week = date_helpers.first_week_of_year(year)
-        end_week = date_helpers.last_week_of_year(year)
+        start_week = Week(year, 1)
+        end_week = Week.last_week_of_year(year)
 
     schedule_map = schedule_util.get_user_schedules(user_id, start_week, end_week)
 
