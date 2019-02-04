@@ -3,10 +3,7 @@ import secrets
 
 from app.helpers import api_error_helpers, session_helper, req_helper
 
-from app.modules.api import (
-    team as team_api,
-    user as user_api,
-)
+from app.modules.api import team as team_api, user as user_api
 from app.models.util import team as team_util, join_token as join_token_util
 
 
@@ -45,7 +42,7 @@ def get_own_team_schedules():
     return team_api.team_get_chart_data(team.id)
 
 
-@bp.route('/schedule', methods=['GET'])
+@bp.route("/schedule", methods=["GET"])
 @session_helper.enforce_validate_token_api
 def get_own_schedule():
-    return  user_api.get_schedule(user_id=g.user.id)
+    return user_api.get_schedule(user_id=g.user.id)

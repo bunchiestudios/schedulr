@@ -109,15 +109,15 @@ def log_hours(json_content):
     return api_error_helpers.could_not_create("schedule")
 
 
-@bp.route('/<int:user_id>/sparse_schedule', methods=['GET'])
+@bp.route("/<int:user_id>/sparse_schedule", methods=["GET"])
 @session_helper.enforce_validate_token_api
 def get_sparse_schedule(user_id: int):
     if not user_util.get_from_id(user_id):
         return api_error_helpers.item_not_found("user", "id", user_id)
 
-    start_str = request.args.get('start_week', default=None, type=str)
-    end_str = request.args.get('end_week', default=None, type=str)
-    year = request.args.get('year', default=None, type=int)
+    start_str = request.args.get("start_week", default=None, type=str)
+    end_str = request.args.get("end_week", default=None, type=str)
+    year = request.args.get("year", default=None, type=int)
 
     if (start_str or end_str) and year:
         return api_error_helpers.invalid_url_args_combination(
@@ -141,13 +141,13 @@ def get_sparse_schedule(user_id: int):
     return jsonify(list(sched.serialize() for sched in schedule_map.values()))
 
 
-@bp.route('/<int:user_id>/schedule', methods=['GET'])
+@bp.route("/<int:user_id>/schedule", methods=["GET"])
 @session_helper.enforce_validate_token_api
 def get_schedule(user_id: int):
     if not user_util.get_from_id(user_id):
         return api_error_helpers.item_not_found("user", "id", user_id)
 
-    year = request.args.get('year', default=None, type=int)
+    year = request.args.get("year", default=None, type=int)
 
     if not year:
         return api_error_helpers.missing_url_arg("year")
@@ -156,14 +156,14 @@ def get_schedule(user_id: int):
     end_week = Week.last_week_of_year(year)
 
     user_projects = user_util.get_projects_for_period(
-        user_id=user_id,
-        start_week=start_week,
-        end_week=end_week
+        user_id=user_id, start_week=start_week, end_week=end_week
     )
 
-    project_index = {proj.id:index for index, proj in enumerate(user_projects)}
+    project_index = {proj.id: index for index, proj in enumerate(user_projects)}
 
-    full_schedule = [ [ 0 for project in user_projects] for week in Week.weeks_of_year(year)]
+    full_schedule = [
+        [0 for project in user_projects] for week in Week.weeks_of_year(year)
+    ]
 
     schedule_dict = schedule_util.get_user_schedules(
         user_id, start_week.toordinal(), end_week.toordinal()
@@ -172,6 +172,11 @@ def get_schedule(user_id: int):
 
     for week_project, schedule in schedule_dict.items():
         week_index = Week.fromordinal(week_project.week).week - 1
-        full_schedule[week_index][project_index[week_project.project_id]] = schedule.hours
+        full_schedule[week_index][
+            project_index[week_project.project_id]
+        ] = schedule.hours
 
-    return jsonify(projects=list(map(lambda x:x.serialize(), user_projects)), schedule=full_schedule)
+    return jsonify(
+        projects=list(map(lambda x: x.serialize(), user_projects)),
+        schedule=full_schedule,
+    )

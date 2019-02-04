@@ -131,6 +131,7 @@ def invalid_url_arg(bad_arg: str) -> Response:
         400,
     )
 
+
 def invalid_url_args_combination(bad_args: List[str]) -> Response:
     return make_response(
         jsonify(
@@ -144,6 +145,7 @@ def invalid_url_args_combination(bad_args: List[str]) -> Response:
         ),
         400,
     )
+
 
 def missing_url_arg(missing_arg: str) -> Response:
     return make_response(

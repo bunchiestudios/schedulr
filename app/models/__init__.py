@@ -101,11 +101,7 @@ class Project(Base):
         return f"<Project(id={self.id}, name={self.name}, team_id={self.team_id})>"
 
     def serialize(self):
-        return {
-            "id": self.id,
-            "team_id": self.team_id,
-            "name": self.name
-        }
+        return {"id": self.id, "team_id": self.team_id, "name": self.name}
 
 
 class Schedule(Base):

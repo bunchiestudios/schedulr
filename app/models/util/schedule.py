@@ -93,11 +93,13 @@ def get_user_schedules(
     """
     session = db.get_session()
 
-    schedules = session.query(Schedule).\
-        filter(Schedule.user_id == user_id).\
-        filter(Schedule.week >= start).\
-        filter(Schedule.week <= end).\
-        all()
+    schedules = (
+        session.query(Schedule)
+        .filter(Schedule.user_id == user_id)
+        .filter(Schedule.week >= start)
+        .filter(Schedule.week <= end)
+        .all()
+    )
 
     return {WeekProject(sched.week, sched.project_id): sched for sched in schedules}
 
