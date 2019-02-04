@@ -75,11 +75,10 @@ def get_schedule(user_id: int, project_id: int, week: int) -> Optional[Schedule]
 
 
 def get_user_schedules(
-    user_id: int, start: Optional[int] = None, end: Optional[int] = None
+    user_id: int, start: int, end: int
 ) -> Dict[WeekProject, Schedule]:
     """
-    Returns all the schedules for a given user by week, optionally filtered by
-    weeks.
+    Returns all the schedules for a given user by week, filtered by weeks.
     :param user_id: ID of the user for which to get schedules.
     :param start: The lower bound (inclusive) for the dates, or None if there is
         no lower bound.
@@ -90,13 +89,11 @@ def get_user_schedules(
     """
     session = db.get_session()
 
-    query = session.query(Schedule).filter(Schedule.user_id == user_id)
-    if start:
-        query = query.filter(Schedule.week >= start)
-    if end:
-        query = query.filter(Schedule.week <= end)
-
-    schedules = query.all()
+    schedules = session.query(Schedule).\
+        filter(Schedule.user_id == user_id).\
+        filter(Schedule.week >= start).\
+        filter(Schedule.week <= end).\
+        all()
 
     return {WeekProject(sched.week, sched.project_id): sched for sched in schedules}
 
