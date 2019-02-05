@@ -63,7 +63,7 @@ class User(Base):
         return self._teams[0] if self._teams else None
 
     def __repr__(self):
-        return f"<User(id={self.id}, name={self.name}, email={self.email}, team_id={self.team_id})>"
+        return f"<User(id={self.id}, name={self.name}, email={self.email}, team_id={self.team})>"
 
 
 class JoinToken(Base):
@@ -121,7 +121,7 @@ class Schedule(Base):
     )
 
     def __repr__(self):
-        return f"<Schedule(id={self.id}, user_id={self.user_id}, project_id={self.project_id}, week={Week.fromordinal(self.week).isoformat()})>"
+        return f"<Schedule(id={self.id}, user_id={self.user_id}, project_id={self.project_id}, week={Week.fromordinal(self.week).isoformat()}, hours={self.hours})>"
 
     def serialize(self):
         return {

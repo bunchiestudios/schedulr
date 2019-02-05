@@ -50,7 +50,7 @@ def view_schedule():
     return render_template(
         "schedule.html", 
         title = g.user.team.name, 
-        script = ["user_schedule.js"],
+        script = ["user_schedule.js", "teampage.js"],
         sidebar = {
             'title': 'Team options',
             'actions': actions

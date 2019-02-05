@@ -28,11 +28,12 @@ APP.register_module(async function(){
         start_ahead: APP.iso_week(start_ahead),
         look_ahead: look_ahead,
     });
-    console.log(data);
+
     let users = new Set();
     for (const item of data) {
         users.add(item.user);
     }
+    
     $('#bar-chart').css("height", `${users.size * 150}px`);
     APP.chart = new Taucharts.Chart({
         type : 'horizontal-stacked-bar',

@@ -180,3 +180,10 @@
     height: 75vh;
     overflow: hidden;
 }
+
+.schedule-buttons {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items:center;
+}

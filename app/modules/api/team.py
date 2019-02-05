@@ -139,7 +139,7 @@ def team_get_projects(team_id):
     team = team_util.get_from_id(team_id)
 
     if team:
-        return jsonify([project.id for project in team.projects])
+        return jsonify([project.serialize() for project in team.projects])
 
     return api_error_helpers.item_not_found("team", "id", str(team_id))
 

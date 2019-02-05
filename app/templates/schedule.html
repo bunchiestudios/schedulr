@@ -4,6 +4,10 @@
     <!-- Handsontable -->
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+
+    <!-- JqueryUI -->
+    <link rel="stylesheet" href="/static/libs/jquery-ui.min.css">
+    <script src="/static/libs/jquery-ui.min.js"></script>
 {% endblock %}
 
 {% block sidebar_actions %}
@@ -16,6 +20,24 @@
 {% block content %}
     <div id="schedule-content">
         <h4>Your Schedule for <span id="schedule-year">2019</span></h4>
+        <div class="schedule-buttons">
+            <div>
+                <button class="mdl-button mdl-js-button" id="prev-button">
+                    Previous
+                </button>
+            </div>
+            <div>
+                <button class="mdl-button mdl-js-button" id="next-button">
+                    Next
+                </button>
+            </div>
+            <div class="mdl-layout-spacer"></div>
+            <div style="margin-right: 10px;">Add project:</div> 
+            <div class="mdl-textfield mdl-js-textfield">
+                <input class="mdl-textfield__input" type="text" id="project-name-add">
+                <label class="mdl-textfield__label" for="project-name-add">Project name...</label>
+            </div>
+        </div>
         <div id="schedule-table"></div>
     </div>
 {% endblock %}

@@ -92,6 +92,9 @@ let APP = {
     },
     iso_week(offset){
         return Week.relative(offset).isoWeek();
+    },
+    async getTeam(){
+        return await $.post('/api/me/team').promise();
     }
 };
 
@@ -123,7 +126,7 @@ $(document).ready(function() {
 
 class Week{
     constructor(year, week){
-        this.moment = moment().set({'isoWeekYear': year, 'isoWeek': week}).startOf('isoWeek');
+        this.moment = moment().startOf('isoWeek').set({'isoWeekYear': year, 'isoWeek': week});
     }
     static thisWeek(){
         return Week.relative(0);
@@ -132,10 +135,13 @@ class Week{
         var m = moment().startOf('isoWeek').add(offset, 'w')
         return new Week(m.get('isoWeekYear'), m.get('isoWeek'));
     }
+    isCurrent(){
+        return this.moment.isSame(moment().startOf('isoWeek'));
+    }
     isoWeek(){
-        return this.moment.format('YYYY-[W]WW');
+        return this.moment.format('GGGG-[W]WW');
     }
     month(){
-        return this.moment.startOf('isoWeek').add(3, 'days').format("MMMM");
+        return moment(this.moment).startOf('isoWeek').add(3, 'days').format("MMMM");
     }
 }
