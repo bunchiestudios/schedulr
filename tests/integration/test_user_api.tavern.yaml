@@ -1,11 +1,40 @@
 ---
 
+test_name: Setup database and clear it out
+
+stages:
+  - &clear_db
+    name: Clear DB
+    request:
+      url: http://localhost:5000/setup/clear_db
+      method: POST
+    response:
+      status_code: 200
+      body:
+        result: ok
+
+  - &setup_db
+    name: Setup DB
+    request:
+      url: http://localhost:5000/setup
+      method: POST
+    response:
+      status_code: 200
+      body:
+        result: ok
+
+  - *clear_db
+---
+
 test_name: Make sure server can create and fetch user information properly
 
 strict:
   - body
 
 stages:
+  - *clear_db
+  - *setup_db
+
   - name: Create user
     request:
       url: http://localhost:5000/api/user/test_user
@@ -43,3 +72,5 @@ stages:
         team_id: null
       headers:
         content-type: application/json
+
+  - *clear_db
