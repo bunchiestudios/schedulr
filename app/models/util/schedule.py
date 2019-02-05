@@ -14,8 +14,10 @@ class WeekUser(NamedTuple):
     week: int
     user_id: int
 
+
 def set_many(data: List[Tuple[int]]) -> List[Optional[Schedule]]:
     pass
+
 
 def set_schedule(
     user_id: int, project_id: int, week: int, hours: int
@@ -44,7 +46,15 @@ def set_schedule(
         return None
 
     # Look for previous entry
-    prev = session.query(Schedule).filter(Schedule.user_id == user_id, Schedule.project_id == project_id, Schedule.week == week).one_or_none()
+    prev = (
+        session.query(Schedule)
+        .filter(
+            Schedule.user_id == user_id,
+            Schedule.project_id == project_id,
+            Schedule.week == week,
+        )
+        .one_or_none()
+    )
 
     if prev is not None:
         if hours > 0:
@@ -54,7 +64,7 @@ def set_schedule(
         else:
             session.delete(prev)
             session.commit()
-            return {'success': True}
+            return {"success": True}
     else:
         if hours > 0:
             schedule = Schedule(user=user, project=project, week=week, hours=hours)
@@ -62,7 +72,7 @@ def set_schedule(
             session.commit()
             return schedule.serialize()
         else:
-            return {'success': True}
+            return {"success": True}
 
 
 def get_schedule(user_id: int, project_id: int, week: int) -> Optional[Schedule]:

@@ -13,48 +13,33 @@ bp = Blueprint("team", __name__)
 @session_helper.enforce_validate_token
 def root():
     if not g.user.team:
-        return redirect(url_for('team.join'))
-    actions = [
-        {
-            'id': 'goto-user-schedule',
-            'text': 'Edit My Schedule'
-        }
-    ]
+        return redirect(url_for("team.join"))
+    actions = [{"id": "goto-user-schedule", "text": "Edit My Schedule"}]
     if g.user.team.owner_id == g.user.id:
         actions.append({"id": "get-invite-link", "text": "Get team invite link"})
     return render_template(
-        "team.html", 
-        title = g.user.team.name, 
-        script = ["team-chart.js", "teampage.js"],
-        sidebar = {
-            'title': 'Team options',
-            'actions': actions
-    })
+        "team.html",
+        title=g.user.team.name,
+        script=["team-chart.js", "teampage.js"],
+        sidebar={"title": "Team options", "actions": actions},
+    )
 
-@bp.route('/schedule')
+
+@bp.route("/schedule")
 @session_helper.enforce_validate_token
 def view_schedule():
     if not g.user.team:
-        return redirect(url_for('team.join'))
-    actions = [
-        {
-            'id': 'goto-team-base',
-            'text': 'View Team Chart'
-        }
-    ]
+        return redirect(url_for("team.join"))
+    actions = [{"id": "goto-team-base", "text": "View Team Chart"}]
     if g.user.team.owner_id == g.user.id:
-        actions.append({
-            'id': 'get-invite-link',
-            'text': 'Get team invite link'
-        })
+        actions.append({"id": "get-invite-link", "text": "Get team invite link"})
     return render_template(
-        "schedule.html", 
-        title = g.user.team.name, 
-        script = ["user_schedule.js", "teampage.js"],
-        sidebar = {
-            'title': 'Team options',
-            'actions': actions
-    })
+        "schedule.html",
+        title=g.user.team.name,
+        script=["user_schedule.js", "teampage.js"],
+        sidebar={"title": "Team options", "actions": actions},
+    )
+
 
 @bp.route("/join", strict_slashes=False)
 @session_helper.enforce_validate_token
