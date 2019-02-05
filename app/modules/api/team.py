@@ -7,6 +7,7 @@ import secrets
 from app.helpers import api_error_helpers, session_helper, req_helper
 from app.models.util import (
     days_off as days_off_util,
+    project as project_util,
     team as team_util,
     join_token as join_token_util,
     schedule as schedule_util,
@@ -185,8 +186,11 @@ def set_days_off(team_id: int, json_content):
 @bp.route("/<int:team_id>/schedules", methods=["GET"])
 @session_helper.enforce_validate_token_api
 def team_get_schedules(team_id: int):
-    if not team_util.get_from_id(team_id):
+    team = team_util.get_from_id(team_id)
+    if not team:
         return api_error_helpers.item_not_found("team", "id", str(team_id))
+    projects = list(team.projects)
+    project_index_map = {project.id: idx for idx, project in enumerate(projects)}
 
     start_ahead = request.args.get("start_ahead", default=None)
     look_ahead = request.args.get("look_ahead", default=0, type=int)
@@ -199,11 +203,30 @@ def team_get_schedules(team_id: int):
     if end < start:
         return api_error_helpers.invalid_url_arg('["start_ahead", "look_ahead"]')
 
+    # Schedule starts out with 0 hours worked
+    schedule_data = [[0 for project in projects] for week_idx in range(look_ahead + 1)]
+
+    # Default work week has 40 days
+    work_hours_data = [40 for week_idx in range(look_ahead + 1)]
+
+    schedules = schedule_util.get_team_schedules(team_id, start, end)
+    days_off = days_off_util.get_days_off(team_id, start, end)
+
+    for schedule in schedules:
+        week_idx = schedule.week - start
+        project_idx = project_index_map[schedule.project_id]
+        schedule_data[week_idx][project_idx] = schedule.hours
+
+    for day_off in days_off:
+        week = Week.withdate(day_off.date)
+        work_hours_data[week.toordinal() - start] -= day_off.hours_off
+
     return jsonify(
-        [
-            schedule.serialize()
-            for schedule in schedule_util.get_team_schedules(team_id, start, end)
-        ]
+        {
+            "projects": [project.serialize() for project in projects],
+            "work_hours": work_hours_data,
+            "schedules": schedule_data,
+        }
     )
 
 
