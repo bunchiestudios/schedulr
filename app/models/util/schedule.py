@@ -41,11 +41,11 @@ def set_schedule(
     if project not in user.team.projects:
         return None
 
-    schedule = session.query(Schedule).\
-        filter(
-            Schedule.project_id == project_id,
-            Schedule.week == week,
-        ).one_or_none()
+    schedule = (
+        session.query(Schedule)
+        .filter(Schedule.project_id == project_id, Schedule.week == week)
+        .one_or_none()
+    )
 
     if schedule:
         return schedule
@@ -67,11 +67,15 @@ def get_schedule(user_id: int, project_id: int, week: int) -> Optional[Schedule]
     """
     session = db.get_session()
 
-    return session.query(Schedule).filter(
-        Schedule.user_id == user_id,
-        Schedule.project_id == project_id,
-        Schedule.week == week,
-    ).one_or_none()
+    return (
+        session.query(Schedule)
+        .filter(
+            Schedule.user_id == user_id,
+            Schedule.project_id == project_id,
+            Schedule.week == week,
+        )
+        .one_or_none()
+    )
 
 
 def get_user_schedules(
@@ -89,11 +93,13 @@ def get_user_schedules(
     """
     session = db.get_session()
 
-    schedules = session.query(Schedule).\
-        filter(Schedule.user_id == user_id).\
-        filter(Schedule.week >= start).\
-        filter(Schedule.week <= end).\
-        all()
+    schedules = (
+        session.query(Schedule)
+        .filter(Schedule.user_id == user_id)
+        .filter(Schedule.week >= start)
+        .filter(Schedule.week <= end)
+        .all()
+    )
 
     return {WeekProject(sched.week, sched.project_id): sched for sched in schedules}
 
@@ -107,8 +113,7 @@ def get_project_schedules(project_id: int) -> Dict[WeekUser, Schedule]:
     """
     session = db.get_session()
 
-    schedules = session.query(Schedule).\
-        filter(Schedule.project_id == project_id).all()
+    schedules = session.query(Schedule).filter(Schedule.project_id == project_id).all()
 
     return {WeekUser(sched.week, sched.user_id): sched for sched in schedules}
 
@@ -124,8 +129,11 @@ def get_project_week_schedule(project_id: int, week: int) -> Dict[int, Schedule]
     """
     session = db.get_session()
 
-    schedules = session.query(Schedule).\
-        filter(Schedule.project_id == project_id, Schedule.week == week).all()
+    schedules = (
+        session.query(Schedule)
+        .filter(Schedule.project_id == project_id, Schedule.week == week)
+        .all()
+    )
 
     return {sched.user_id: sched for sched in schedules}
 
@@ -141,12 +149,14 @@ def get_team_schedules(team_id: int, start: int, end: int) -> List[Schedule]:
     """
     session = db.get_session()
 
-    return session.query(Schedule).\
-                   join(Project).\
-                   filter(Project.team_id == team_id).\
-                   filter(Schedule.week >= start).\
-                   filter(Schedule.week <= end).\
-                   all()
+    return (
+        session.query(Schedule)
+        .join(Project)
+        .filter(Project.team_id == team_id)
+        .filter(Schedule.week >= start)
+        .filter(Schedule.week <= end)
+        .all()
+    )
 
 
 def get_team_summary_schedule(
@@ -163,12 +173,14 @@ def get_team_summary_schedule(
         project, the user ID, and the project ID.
     """
     session = db.get_session()
-    results = session.query(func.sum(Schedule.hours)/period, User.name, Project.name) \
-        .filter(Project.team_id == team_id) \
-        .filter(Schedule.week >= start) \
-        .filter(Schedule.week <= end) \
-        .group_by(Schedule.user_id, Schedule.project_id) \
-        .join(User) \
-        .join(Project) \
+    results = (
+        session.query(func.sum(Schedule.hours) / period, User.name, Project.name)
+        .filter(Project.team_id == team_id)
+        .filter(Schedule.week >= start)
+        .filter(Schedule.week <= end)
+        .group_by(Schedule.user_id, Schedule.project_id)
+        .join(User)
+        .join(Project)
         .all()
+    )
     return results

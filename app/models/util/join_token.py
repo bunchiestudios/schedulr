@@ -11,7 +11,11 @@ def team_by_join_token(join_token_str: str) -> Optional[Team]:
     :return: Returns a Team if the join token exists, or None otherwise
     """
     session = db.get_session()
-    join_token = session.query(JoinToken).filter(JoinToken.token_str == join_token_str).one_or_none()
+    join_token = (
+        session.query(JoinToken)
+        .filter(JoinToken.token_str == join_token_str)
+        .one_or_none()
+    )
     if not join_token:
         return None
 
@@ -51,7 +55,7 @@ def add_to_team(team_id: int, join_token_str: str) -> Optional[JoinToken]:
     if team.join_tokens:
         for join_token in team.join_tokens:
             session.delete(join_token)
-    
+
     join_token = JoinToken(token_str=join_token_str)
     team.join_tokens = [join_token]
     session.add(join_token)
