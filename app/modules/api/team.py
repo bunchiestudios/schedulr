@@ -190,6 +190,7 @@ def team_get_schedules(team_id: int):
     if not team:
         return api_error_helpers.item_not_found("team", "id", str(team_id))
     projects = list(team.projects)
+    project_index_map = {project.id: idx for idx, project in enumerate(projects)}
 
     start_ahead = request.args.get("start_ahead", default=None)
     look_ahead = request.args.get("look_ahead", default=0, type=int)
@@ -209,15 +210,16 @@ def team_get_schedules(team_id: int):
     work_hours_data = [40 for week_idx in range(look_ahead + 1)]
 
     schedules = schedule_util.get_team_schedules(team_id, start, end)
-    days_off = days_off_util.get_days_off(team_id, start.toordinal(), end.toordinal())
+    days_off = days_off_util.get_days_off(team_id, start, end)
 
     for schedule in schedules:
-        week_idx = schedule.week - start.toordinal()
-        schedule_data[week_idx][schedule.project_id] = schedule.hours
+        week_idx = schedule.week - start
+        project_idx = project_index_map[schedule.project_id]
+        schedule_data[week_idx][project_idx] = schedule.hours
 
     for day_off in days_off:
         week = Week.withdate(day_off.date)
-        work_hours_data[week.toordinal() - start.toordinal()] -= day_off.hours_off
+        work_hours_data[week.toordinal() - start] -= day_off.hours_off
 
     return jsonify(
         {
