@@ -107,7 +107,7 @@ $(document).ready(function() {
             type: 'POST',
             success: (data) =>{
                 APP.toast("You've logged out!")
-                APP.redirect_after('/', 2000);
+                APP.redirect_after('/', 500);
             },
             error: (jqXHR, textStatus, errorThrown) => {
                 console.log("Log out error: " + textStatus);

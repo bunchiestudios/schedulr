@@ -34,7 +34,7 @@ APP.register_module(async function(){
         users.add(item.user);
     }
     
-    $('#bar-chart').css("height", `${users.size * 150}px`);
+    $('#bar-chart').css("height", `${users.size * 200}px`);
     APP.chart = new Taucharts.Chart({
         type : 'horizontal-stacked-bar',
         y    : 'user',
@@ -43,10 +43,16 @@ APP.register_module(async function(){
         label: 'hours',
         data : data,
         guide: {
-            x: {autoScale:false, min:0, max:45}
+            x: {autoScale:false, min:0, max:50}
         },
         plugins: [
-            //Taucharts.api.plugins.get('tooltip')(),
+            Taucharts.api.plugins.get('tooltip')({
+                fields: ['project', 'hours'],
+                formatters: {
+                    project: {label: "Project"},
+                    hours: {label: "Hours"}
+                },
+            }),
             Taucharts.api.plugins.get('legend')(),
             Taucharts.api.plugins.get('crosshair')(),
             Taucharts.api.plugins.get('export-to')(),
