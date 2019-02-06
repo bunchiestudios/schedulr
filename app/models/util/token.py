@@ -4,6 +4,7 @@ from app import db
 
 from app.models import Token, User
 
+
 def save_token(*, user_id: int, token: str) -> bool:
     session = db.get_session()
     user = session.query(User).filter(User.id == user_id).one_or_none()
@@ -16,6 +17,7 @@ def save_token(*, user_id: int, token: str) -> bool:
     session.commit()
     return True
 
+
 def verify_token(token_str: str) -> Token:
     """Looks for a token string in the database and returns the instance associated with it from the database.
     If the token was not found returns None.
@@ -26,8 +28,11 @@ def verify_token(token_str: str) -> Token:
     Returns:
         Token -- Token 
     """
-    token = db.get_session().query(Token).filter(Token.token_str == token_str).one_or_none()
+    token = (
+        db.get_session().query(Token).filter(Token.token_str == token_str).one_or_none()
+    )
     return token
+
 
 def older_than(*, token: Token, hours: int) -> bool:
     """Determines whether a tokes is older than a given amount of hours.
@@ -42,10 +47,8 @@ def older_than(*, token: Token, hours: int) -> bool:
     reference_timestamp = datetime.now() - timedelta(hours=hours)
     return token.timestamp <= reference_timestamp
 
+
 def destroy_token(token: Token) -> None:
     session = db.get_session()
     session.delete(token)
     session.commit()
-    
-
-

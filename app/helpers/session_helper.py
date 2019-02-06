@@ -1,4 +1,3 @@
-
 from functools import wraps
 from secrets import token_urlsafe
 from flask import (
@@ -17,17 +16,23 @@ from app.models import User, Token
 from app.models.util import token as token_utils
 from app.models.util import user as user_utils
 
+from app.models import User, Token
+
+
 def get_session_token_key():
-    return 'schedulr_token'
+    return "schedulr_token"
+
 
 def session_token_exists():
     return get_session_token_key() in session or 'X-Authorization' in request.headers
+
 
 def get_session_token():
     if 'X-Authorization' in request.headers:
         return request.headers['X-Authorization']
     else:
         return session[get_session_token_key()]
+
 
 def make_session(*, user: User):
     token = token_urlsafe(128)
@@ -37,7 +42,8 @@ def make_session(*, user: User):
 
 def get_logged_in_user() -> User:
     from flask import g
-    g.setdefault('user', None)
+
+    g.setdefault("user", None)
     if session_token_exists():
         token_str = get_session_token()
         token = token_utils.verify_token(token_str)
@@ -57,17 +63,23 @@ def get_logged_in_user() -> User:
 
 
 def __make_on_failure(action):
-    if action == 'error':
+    if action == "error":
+
         def error_result(code, message):
             return abort(make_response(jsonify(message=message), code))
+
         return error_result
-    elif action == 'redirect':
+    elif action == "redirect":
+
         def redirect_result(code, message):
-            return redirect(url_for('auth.login'))
+            return redirect(url_for("auth.login"))
+
         return redirect_result
+
 
 def __make_wrapper(method, action):
     on_failure = __make_on_failure(action)
+
     @wraps(method)
     def wrapper(*args, **kwargs):
         if session_token_exists():
@@ -83,17 +95,22 @@ def __make_wrapper(method, action):
                 token_utils.destroy_token(token)
                 return on_failure(401, "Token is not associated with any user!")
             from flask import g
+
             g.user = user
             return method(*args, **kwargs)
         else:
             return on_failure(401, "No token provided!")
+
     return wrapper
 
+
 def enforce_validate_token(method):
-    return __make_wrapper(method, 'redirect')
+    return __make_wrapper(method, "redirect")
+
 
 def enforce_validate_token_api(method):
-    return __make_wrapper(method, 'error')
+    return __make_wrapper(method, "error")
+
 
 def load_user_if_logged_in(method):
     """Decorator: stores the user, if any, un g.user
@@ -104,10 +121,12 @@ def load_user_if_logged_in(method):
     Returns:
         func -- Decorated function.
     """
+
     @wraps(method)
     def wrapper(*args, **kwargs):
         get_logged_in_user()
         return method(*args, **kwargs)
+
     return wrapper
 
 
@@ -127,6 +146,7 @@ def test_api(func):
 
 def retirieve_token() -> Token:
     return token_utils.verify_token(get_session_token())
+
 
 def destroy_session():
     session.clear()
