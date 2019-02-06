@@ -6,7 +6,7 @@ install: pip install -r requirements.txt
 before_script:
   - export FLASK_APP="$TRAVIS_BUILD_DIR/app"
   - export FLASK_DEBUG=1
-  - cp config/test_env_config.py config.py
+  - cp config/test_env_config.py config/config.py
   - cp sample_run.sh run.sh
   - chmod +x run.sh
 
