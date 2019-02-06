@@ -2,6 +2,7 @@
 .vscode/*
 config/*
 !config/sample_config.py
+!config/test_env_config.py
 run.bat
 run.sh
 
