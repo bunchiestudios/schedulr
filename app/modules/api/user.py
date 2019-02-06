@@ -185,7 +185,7 @@ def get_schedule(user_id: int):
     )
 
 
-@bp.route('/test_user', methods=['POST'])
+@bp.route("/test_user", methods=["POST"])
 @req_helper.api_check_json("name", "email")
 @session_helper.test_api
 def create_test_user(json_content):

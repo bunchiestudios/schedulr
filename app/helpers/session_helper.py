@@ -24,12 +24,12 @@ def get_session_token_key():
 
 
 def session_token_exists():
-    return get_session_token_key() in session or 'X-Authorization' in request.headers
+    return get_session_token_key() in session or "X-Authorization" in request.headers
 
 
 def get_session_token():
-    if 'X-Authorization' in request.headers:
-        return request.headers['X-Authorization']
+    if "X-Authorization" in request.headers:
+        return request.headers["X-Authorization"]
     else:
         return session[get_session_token_key()]
 
@@ -137,12 +137,15 @@ def test_api(func):
     :param func: Function to decorate
     :returns: New decorated function
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if current_app.config.get('TEST_MODE', None):
+        if current_app.config.get("TEST_MODE", None):
             return func(*args, **kwargs)
         return api_error_helpers.not_authorized()
+
     return wrapper
+
 
 def retirieve_token() -> Token:
     return token_utils.verify_token(get_session_token())
