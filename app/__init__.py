@@ -17,9 +17,8 @@ def create_app():
     init_app(flapp)
 
     # Setup blueprints
-    from app.modules import test_module, auth, setup, home, team
+    from app.modules import auth, setup, home, team
 
-    flapp.register_blueprint(test_module.bp, url_prefix="/test")
     flapp.register_blueprint(setup.bp, url_prefix="/setup")
     flapp.register_blueprint(auth.bp, url_prefix="/auth")
     flapp.register_blueprint(team.bp, url_prefix="/team")

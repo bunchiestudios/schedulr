@@ -1,12 +1,15 @@
 from isoweek import Week
 from flask import Blueprint, jsonify, g, request
 
+from secrets import token_urlsafe
+
 from app.helpers import api_error_helpers, session_helper, req_helper
 
 from app.models.util import (
     user as user_util,
     join_token as join_token_util,
     schedule as schedule_util,
+    token as token_util,
 )
 
 bp = Blueprint("api.user", __name__)
@@ -179,4 +182,26 @@ def get_schedule(user_id: int):
     return jsonify(
         projects=list(map(lambda x: x.serialize(), user_projects)),
         schedule=full_schedule,
+    )
+
+
+@bp.route("/test_user", methods=["POST"])
+@req_helper.api_check_json("name", "email")
+@session_helper.test_api
+def create_test_user(json_content):
+    token = token_urlsafe(128)
+    user = user_util.get_or_create_user(
+        name=json_content["name"], email=json_content["email"]
+    )
+    if not token_util.save_token(user_id=user.id, token=token):
+        return api_error_helpers.item_not_found("user", "id", str(user.id))
+
+    return jsonify(
+        {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "team_id": user.team.id if user.team else None,
+            "token": token,
+        }
     )

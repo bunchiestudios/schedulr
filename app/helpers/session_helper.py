@@ -1,7 +1,18 @@
 from functools import wraps
 from secrets import token_urlsafe
-from flask import session, url_for, redirect, abort, make_response, jsonify, current_app
+from flask import (
+    request,
+    session,
+    url_for,
+    redirect,
+    abort,
+    make_response,
+    jsonify,
+    current_app,
+)
 
+from app.helpers import api_error_helpers
+from app.models import User, Token
 from app.models.util import token as token_utils
 from app.models.util import user as user_utils
 
@@ -13,11 +24,14 @@ def get_session_token_key():
 
 
 def session_token_exists():
-    return get_session_token_key() in session
+    return get_session_token_key() in session or "X-Authorization" in request.headers
 
 
 def get_session_token():
-    return session[get_session_token_key()]
+    if "X-Authorization" in request.headers:
+        return request.headers["X-Authorization"]
+    else:
+        return session[get_session_token_key()]
 
 
 def make_session(*, user: User):
@@ -112,6 +126,23 @@ def load_user_if_logged_in(method):
     def wrapper(*args, **kwargs):
         get_logged_in_user()
         return method(*args, **kwargs)
+
+    return wrapper
+
+
+def test_api(func):
+    """
+    Decorator: Will search for the TEST_MODE config. If it is set to a truthy value,
+    it will allow users through. Otherwise, it will throw an HTTP 401 error.
+    :param func: Function to decorate
+    :returns: New decorated function
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if current_app.config.get("TEST_MODE", None):
+            return func(*args, **kwargs)
+        return api_error_helpers.not_authorized()
 
     return wrapper
 

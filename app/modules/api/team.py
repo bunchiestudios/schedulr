@@ -107,7 +107,8 @@ def get_join_token(team_id):
 
     # return jsonify(join_token.serialize())
     return jsonify(
-        link=url_for("team.join_link", code=join_token.token_str, _external=True)
+        link=url_for("team.join_link", code=join_token.token_str, _external=True),
+        code=join_token.token_str,
     )
 
 
@@ -129,7 +130,8 @@ def get_new_join_token(team_id):
 
     # return jsonify(join_token.serialize())
     return jsonify(
-        link=url_for("team.join_link", code=join_token.token_str, _external=True)
+        link=url_for("team.join_link", code=join_token.token_str, _external=True),
+        code=join_token.token_str,
     )
 
 

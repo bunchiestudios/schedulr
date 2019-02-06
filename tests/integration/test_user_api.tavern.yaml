@@ -1,0 +1,76 @@
+---
+
+test_name: Setup database and clear it out
+
+stages:
+  - &clear_db
+    name: Clear DB
+    request:
+      url: http://localhost:5000/setup/clear_db
+      method: POST
+    response:
+      status_code: 200
+      body:
+        result: ok
+
+  - &setup_db
+    name: Setup DB
+    request:
+      url: http://localhost:5000/setup
+      method: POST
+    response:
+      status_code: 200
+      body:
+        result: ok
+
+  - *clear_db
+---
+
+test_name: Make sure server can create and fetch user information properly
+
+strict:
+  - body
+
+stages:
+  - *clear_db
+  - *setup_db
+
+  - name: Create user
+    request:
+      url: http://localhost:5000/api/user/test_user
+      json:
+        name: Bob Bassel
+        email: bob@example.com
+      method: POST
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      body:
+        id: !anyint
+        name: Bob Bassel
+        email: bob@example.com
+        team_id: null
+        token: !anystr
+      save:
+        body:
+          test_login_token: token
+          user_id: id
+
+  - name: Get user
+    request:
+      url: "http://localhost:5000/api/user/{user_id:d}"
+      method: GET
+      headers:
+        X-Authorization: "{test_login_token:s}"
+    response:
+      status_code: 200
+      body:
+        id: !int "{user_id:d}"
+        name: Bob Bassel
+        email: bob@example.com
+        team_id: null
+      headers:
+        content-type: application/json
+
+  - *clear_db
