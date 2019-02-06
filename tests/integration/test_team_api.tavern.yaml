@@ -1,0 +1,163 @@
+---
+
+test_name: Setup database and clear it out
+
+stages:
+  - &clear_db
+    name: Clear DB
+    request:
+      url: http://localhost:5000/setup/clear_db
+      method: POST
+    response:
+      status_code: 200
+      body:
+        result: ok
+
+  - &setup_db
+    name: Setup DB
+    request:
+      url: http://localhost:5000/setup
+      method: POST
+    response:
+      status_code: 200
+      body:
+        result: ok
+
+  - *clear_db
+---
+
+test_name: Test team creation
+
+stages:
+  - *clear_db
+  - *setup_db
+
+  - &create_bob
+    name: Create user 1
+    request:
+      url: http://localhost:5000/api/user/test_user
+      json:
+        name: Bob Bassel
+        email: bob@example.com
+      method: POST
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      body:
+        id: !anyint
+        name: Bob Bassel
+        email: bob@example.com
+        team_id: null
+        token: !anystr
+      save:
+        body:
+          user1_login_token: token
+          user1_id: id
+
+  - &create_team
+    name: Create team
+    request:
+      url: http://localhost:5000/api/team
+      json:
+        name: My great team
+      method: POST
+      headers:
+        content-type: application/json
+        X-Authorization: "{user1_login_token:s}"
+    response:
+      status_code: 200
+      body:
+        id: !anyint
+        name: My great team
+        team_members: [!int "{user1_id:d}"]
+        projects: []
+        owner_id: !int "{user1_id:d}"
+      save:
+        body:
+          team_id: id
+
+  - name: Get team
+    request:
+      url: "http://localhost:5000/api/team/{team_id:d}"
+      method: GET
+      headers:
+        X-Authorization: "{user1_login_token:s}"
+    response:
+      status_code: 200
+      body:
+        id: !int "{team_id:d}"
+        name: My great team
+        team_members: [!int "{user1_id:d}"]
+        projects: []
+        owner_id: !int "{user1_id:d}"
+
+  - *clear_db
+
+
+---
+
+test_name: Test adding users from teams
+
+stages:
+  - *clear_db
+  - *setup_db
+
+  - *create_bob
+  
+  - name: Create user 2
+    request:
+      url: http://localhost:5000/api/user/test_user
+      json:
+        name: Adam Appleton
+        email: adam@example.com
+      method: POST
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      body:
+        id: !anyint
+        name: Adam Appleton
+        email: adam@example.com
+        team_id: null
+        token: !anystr
+      save:
+        body:
+          user2_login_token: token
+          user2_id: id
+
+  - *create_team
+
+  - name: Get join token
+    request:
+      url: http://localhost:5000/api/team/1/join_token
+      method: POST
+      headers:
+        X-Authorization: "{user1_login_token:s}"
+    response:
+      status_code: 200
+      body:
+        link: !anystr
+        code: !anystr
+      save:
+        body:
+          join_code: code
+
+  - name: Join user 2 to team
+    request:
+      url: http://localhost:5000/api/user/jointeam
+      method: POST
+      json:
+        join_token: "{join_code:s}"
+      headers:
+        X-Authorization: "{user2_login_token:s}"
+    response:
+      status_code: 200
+      body:
+        id: !int "{user2_id:d}"
+        name: Adam Appleton
+        email: adam@example.com
+        team_id: !int "{team_id:d}"
+
+  - *clear_db
