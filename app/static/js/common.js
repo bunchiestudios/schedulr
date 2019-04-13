@@ -6,7 +6,7 @@ let APP = {
     modules: [],
     handlers: {
         default_post: (data) => console.log(data),
-        post_error: (jqXHR, textStatus, errorThrown) => console.log(textStatus + " " + errorThrown),
+        post_error: (jqXHR, textStatus, errorThrown) => console.log(jqXHR.responseText + " " + textStatus + " " + errorThrown),
     },
     init(){
         // Setup snackbar
@@ -67,6 +67,14 @@ let APP = {
             error: fail
         });
     },
+    get(url, data=null, success=APP.handlers.default_post, fail=APP.handlers.post_error){
+        $.ajax({
+            url: url, 
+            data: data,
+            success: success, 
+            error: fail
+        });
+    },
     toggle_drawer(){
         $('.mdl-layout')[0].MaterialLayout.toggleDrawer();
     },
@@ -81,6 +89,12 @@ let APP = {
 
         }
         $temp.remove();
+    },
+    iso_week(offset){
+        return Week.relative(offset).isoWeek();
+    },
+    async getTeam(){
+        return await $.post('/api/me/team').promise();
     }
 };
 
@@ -93,12 +107,41 @@ $(document).ready(function() {
             type: 'POST',
             success: (data) =>{
                 APP.toast("You've logged out!")
-                APP.redirect_after('/', 2000);
+                APP.redirect_after('/', 500);
             },
             error: (jqXHR, textStatus, errorThrown) => {
                 console.log("Log out error: " + textStatus);
                 APP.redirect('/');
             }
         });
-    })
+    });
+
+    $('#goto-team-base').on('click', (event)=>{
+        APP.redirect('/team/');
+    });
+    $('#goto-user-schedule').on('click', (event)=>{
+        APP.redirect('/team/schedule');
+    });
 });
+
+class Week{
+    constructor(year, week){
+        this.moment = moment().startOf('isoWeek').set({'isoWeekYear': year, 'isoWeek': week});
+    }
+    static thisWeek(){
+        return Week.relative(0);
+    }
+    static relative(offset=0){
+        var m = moment().startOf('isoWeek').add(offset, 'w')
+        return new Week(m.get('isoWeekYear'), m.get('isoWeek'));
+    }
+    isCurrent(){
+        return this.moment.isSame(moment().startOf('isoWeek'));
+    }
+    isoWeek(){
+        return this.moment.format('GGGG-[W]WW');
+    }
+    month(){
+        return moment(this.moment).startOf('isoWeek').add(3, 'days').format("MMMM");
+    }
+}

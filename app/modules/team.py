@@ -14,13 +14,29 @@ bp = Blueprint("team", __name__)
 def root():
     if not g.user.team:
         return redirect(url_for("team.join"))
-    actions = []
+    actions = [{"id": "goto-user-schedule", "text": "Edit My Schedule"}]
     if g.user.team.owner_id == g.user.id:
         actions.append({"id": "get-invite-link", "text": "Get team invite link"})
     return render_template(
         "team.html",
         title=g.user.team.name,
         script=["team-chart.js", "teampage.js"],
+        sidebar={"title": "Team options", "actions": actions},
+    )
+
+
+@bp.route("/schedule")
+@session_helper.enforce_validate_token
+def view_schedule():
+    if not g.user.team:
+        return redirect(url_for("team.join"))
+    actions = [{"id": "goto-team-base", "text": "View Team Chart"}]
+    if g.user.team.owner_id == g.user.id:
+        actions.append({"id": "get-invite-link", "text": "Get team invite link"})
+    return render_template(
+        "schedule.html",
+        title=g.user.team.name,
+        script=["user_schedule.js", "teampage.js"],
         sidebar={"title": "Team options", "actions": actions},
     )
 

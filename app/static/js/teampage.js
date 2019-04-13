@@ -40,8 +40,7 @@ async function list_projects(){
         }
     );
     list_element.empty();
-    APP.team.projects.forEach(async function(project_id){
-        var project = await $.post(`/api/project/${project_id}`).promise();
+    APP.team.projects.forEach(async function(project){
         var delbutton = `<a class="mdl-list__item-secondary-action pointer" onclick="project_request_delete(${project.id}, '${project.name}')"><i class="material-icons">delete</i></a>`;
 
         var element = $(`
@@ -80,7 +79,6 @@ APP.register_module(async function(){
         });
     });
     $('#view-projects').on('click', async (event)=>{
-        console.log('WOOp');
         APP.toggle_drawer();
         list_projects();
     });
