@@ -15,10 +15,6 @@ class WeekUser(NamedTuple):
     user_id: int
 
 
-def set_many(data: List[Tuple[int]]) -> List[Optional[Schedule]]:
-    pass
-
-
 def set_schedule(
     user_id: int, project_id: int, week: int, hours: int
 ) -> Optional[Schedule]:
@@ -203,3 +199,22 @@ def get_team_summary_schedule(
         .all()
     )
     return results
+
+
+def clear_user_schedule(team: Team, user: User):
+    """Erases all schedules for a user in a given team
+    
+    Arguments:
+        team {Team} -- Team
+        user {User} -- User
+    """
+    session = db.get_session()
+
+    results = session.query(Schedule).join(Project).filter(
+        Schedule.user_id == user.id,
+        Project.team_id == team.id
+    ).all()
+    for item in results:
+        session.delete(item)
+    session.commit()
+

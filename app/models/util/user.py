@@ -27,6 +27,17 @@ def get_from_id(user_id: int) -> Optional[User]:
     return session.query(User).filter(User.id == user_id).one_or_none()
 
 
+def remove_team(user_id: int) -> None:
+    session = db.get_session()
+    user = session.query(User).filter(User.id == user_id).one_or_none()
+
+    if not user:
+        return None
+    
+    user._teams = []
+    session.commit()
+    
+
 def set_team(user_id: int, team_id: int) -> Optional[User]:
     session = db.get_session()
     user = session.query(User).filter(User.id == user_id).one_or_none()

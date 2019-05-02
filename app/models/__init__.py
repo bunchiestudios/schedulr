@@ -35,11 +35,12 @@ class Team(Base):
     name = Column(String(250), nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
-    projects = relationship("Project", back_populates="team")
     users = relationship("User", secondary=user_team_table, back_populates="_teams")
     owner = relationship("User", foreign_keys=[owner_id])
-    join_tokens = relationship("JoinToken", back_populates="team")
-    days_off = relationship("DayOff", back_populates="team")
+
+    projects = relationship("Project", back_populates="team", cascade="delete")
+    join_tokens = relationship("JoinToken", back_populates="team", cascade="delete")
+    days_off = relationship("DayOff", back_populates="team", cascade="delete")
 
     def __repr__(self):
         return f"<Team(id={self.id}, name={self.name})>"
@@ -51,9 +52,10 @@ class User(Base):
     name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
 
-    tokens = relationship("Token", back_populates="user")
     _teams = relationship("Team", secondary=user_team_table, back_populates="users")
-    schedules = relationship("Schedule", back_populates="user")
+
+    tokens = relationship("Token", back_populates="user", cascade="delete")
+    schedules = relationship("Schedule", back_populates="user", cascade="delete")
 
     @property
     def team(self) -> Optional[Team]:
@@ -96,7 +98,7 @@ class Project(Base):
     name = Column(String(250), nullable=False)
 
     team = relationship("Team", back_populates="projects")
-    schedules = relationship("Schedule", back_populates="project")
+    schedules = relationship("Schedule", back_populates="project", cascade="delete, delete-orphan")
 
     def __repr__(self):
         return f"<Project(id={self.id}, name={self.name}, team_id={self.team_id})>"
@@ -142,6 +144,10 @@ class DayOff(Base):
     week = Column(Integer, nullable=False)
 
     team = relationship("Team", back_populates="days_off")
+
+    __table_args__ = (
+        UniqueConstraint("team_id", "date", name="dayoff_team_date"),
+    )
 
     def serialize(self):
         return {

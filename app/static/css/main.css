@@ -187,3 +187,32 @@
     flex-direction: row;
     align-items:center;
 }
+
+.management-list{
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mdl-switch-custom {
+    position: relative;
+    z-index: 1;
+    vertical-align: middle;
+    display: inline-block;
+    box-sizing: border-box;
+    width: 30px;
+    height: 24px;
+    margin: 0 10px 0 10px;
+    padding: 0;
+    overflow: visible;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#fulldaylabel {
+    width: 55px;
+    margin-right: 10px;
+}

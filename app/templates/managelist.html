@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+    <!-- JqueryUI -->
+    <link rel="stylesheet" href="/static/libs/jquery-ui.min.css">
+    <script src="/static/libs/jquery-ui.min.js"></script>
+{% endblock %}
+
+
+{% block content %}
+{% block list_head %}{% endblock %}
+
+<div class="management-list mdl-list">
+    {% for item in contentlist['items'] %}
+        <div class="mdl-list__item">
+            <span class="mdl-list__item-primary-content">
+                <i class="material-icons mdl-list__item-avatar">{{contentlist['icon']}}</i>
+                <span>{{item.name}}</span>
+            </span>
+            {% if g.user.team.owner_id != item.id %}
+            <a class="mdl-list__item-secondary-action list-delete" href="#">
+                <i 
+                    class="material-icons"
+                    data-name="{{item.name}}"
+                    data-target="{{contentlist['target']}}"
+                    data-id="{{item.id}}"
+                >delete</i>
+            </a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

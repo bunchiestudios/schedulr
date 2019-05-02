@@ -8,10 +8,6 @@
 {% endblock %}
 
 {% block sidebar_actions %}
-<div class="mdl-navigation__link sidebar-item hvr-icon-forward pointer" id="view-projects">
-    View Projects
-    <i class="fas fa-chevron-circle-right hvr-icon"></i>
-</div>
 {% endblock %}
 
 {% block content %}
@@ -34,23 +30,4 @@
 {% endblock %}
 
 {% block modal_content %}
-<div id="chip-container">
-    <span class="mdl-chip mdl-chip--deletable">
-        <span class="mdl-chip__text">Deletable Chip</span>
-        <button type="button" class="mdl-chip__action">
-            <i id="CopyButton" class="material-icons">file_copy</i>
-            <div class="mdl-tooltip" data-mdl-for="CopyButton">
-                Copy
-            </div>
-        </button>
-    </span>
-    <div id="refresh-code" class="mdl-color-text--orange pointer"> Click here to replace with a new code. <i class="fas fa-sync-alt"></i></div>
-</div>
-<div id="project-list">
-    <button class="mdl-button mdl-js-button mdl-button--primary" id="add-project-button">
-        Add New Project
-    </button>
-    <div class="mdl-list">
-    </div>
-</div>
 {% endblock %}

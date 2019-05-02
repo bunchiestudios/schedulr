@@ -7,6 +7,7 @@ from app.models.util import (
     user as user_util,
     join_token as join_token_util,
     schedule as schedule_util,
+    team as team_util
 )
 
 bp = Blueprint("api.user", __name__)
@@ -194,6 +195,9 @@ def get_schedule(user_id: int):
     if not user_util.get_from_id(user_id):
         return api_error_helpers.item_not_found("user", "id", user_id)
 
+    if g.user.id != user_id:
+        return api_error_helpers.not_authorized()
+    
     year = request.args.get("year", default=None, type=int)
 
     if not year:
@@ -222,7 +226,10 @@ def get_schedule(user_id: int):
             project_index[week_project.project_id]
         ] = schedule.hours
 
+    work_hours = team_util.get_year_workhours(g.user.team.id, year)
+    
     return jsonify(
         projects=list(map(lambda x: x.serialize(), user_projects)),
         schedule=full_schedule,
+        work_hours=work_hours
     )

@@ -34,3 +34,10 @@ def add_project(name: str, team_id: int) -> Optional[Project]:
     session.commit()
 
     return project
+
+
+def delete_project(project: Project):
+    session = db.get_session()
+
+    session.delete(project)
+    session.commit()

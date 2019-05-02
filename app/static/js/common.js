@@ -95,10 +95,19 @@ let APP = {
     },
     async getTeam(){
         return await $.post('/api/me/team').promise();
+    },
+    async loadTeam(){
+        this.team = await this.getTeam();
     }
 };
 
-$(document).ready(function() {
+$(document).ready(async function() {
+    try{
+        await APP.loadTeam();
+    }
+    catch(error){
+
+    }
     APP.init();
     $('#logout').on('click', (event)=>{
         event.preventDefault();
@@ -121,6 +130,12 @@ $(document).ready(function() {
     });
     $('#goto-user-schedule').on('click', (event)=>{
         APP.redirect('/team/schedule');
+    });
+    $('#manage-team').on('click', (event) => {
+        APP.redirect('/team/members');
+    });
+    $('#manage-workdays').on('click', (event) => {
+        APP.redirect('/team/offdays');
     });
 });
 

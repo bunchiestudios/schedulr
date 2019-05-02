@@ -1,0 +1,30 @@
+{% extends "managelist.html" %}
+
+{% block list_head %}
+    <div id="schedule-content">
+        <h4>Off-days in {{contentlist['year']}}</h4>
+        <div class="schedule-buttons">
+            <a href="/team/offdays/{{contentlist['year']-1}}">
+                <button class="mdl-button mdl-js-button" id="prev-button">
+                    Previous
+                </button>
+            </a>
+            <a href="/team/offdays/{{contentlist['year']+1}}">
+                <button class="mdl-button mdl-js-button" id="prev-button">
+                    Next
+                </button>
+            </a>
+            <div class="mdl-layout-spacer"></div>
+            <div style="margin-right: 10px;">Add off-day:</div>
+            <input type="date" id="date">
+            <label class="mdl-switch mdl-switch-custom mdl-js-switch mdl-js-ripple-effect" for="fullday">
+                <input type="checkbox" id="fullday" class="mdl-switch__input" checked>
+                <span class="mdl-switch__label"></span>
+            </label>
+            <span id="fulldaylabel">Full day</span>
+            <button class="mdl-button mdl-js-button mdl-button--icon" id="submit-offday">
+                <i class="material-icons">add_circle_outline</i>
+            </button>
+        </div>
+    </div>
+{% endblock %}

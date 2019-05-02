@@ -4,13 +4,29 @@ var table_data = {
     hot: null,
     project_list: null,
     year: null,
-    project_offset: 0,
+    project_offset: -1,
+    week_hours: null,
 }
 
 function trim_str(str, size){
     return str.length > size ?
         str.substring(0, size - 3) + "..." : 
         str;
+}
+
+function updateUtilization(){
+    data = table_data.hot.getSourceData();
+    
+    for (let wi = 0; wi < data.length; wi++) {
+        const row = data[wi];
+        const hours = table_data.week_hours[wi];
+        let sum = 0;
+        for (let i = 1; i < row.length; i++) {
+            sum += row[i];
+        }
+        row[0] = `${Math.round(sum / hours * 100)}% (${Math.round(sum)}/${Math.round(hours)})`
+    }
+    table_data.hot.render();
 }
 
 async function render_table(){
@@ -20,6 +36,7 @@ async function render_table(){
     });
     table_data.data = data;
     table_data.project_names = data.projects.map((item) => item.name);
+    table_data.week_hours = data.work_hours;
     var week_names = [];
     for (let index = 0; index < data.schedule.length; index++) {
         var week = new Week(table_data.year, index + 1);
@@ -28,20 +45,28 @@ async function render_table(){
             string = "<b>" + string + "</b>";
         }
         week_names.push(string);
+
+        data.schedule[index].unshift('%');
     }
+
+    table_data.project_names.unshift("Utilization")
     
     table_data.hot.updateSettings({
         data: data.schedule,
         rowHeaders: week_names,
         colHeaders: table_data.project_names,
         columns: function(index){
-            return {
+            let data = {
                 type: 'numeric',
                 allowEmpty: false
             }
+            if(index === 0){
+                data.editor = false;
+            }
+            return data;
         },
     });
-    
+    updateUtilization();
 }
 
 async function send_updates(changes){
@@ -85,6 +110,8 @@ async function send_update(change){
     if(change[2] === change[3]){
         return;
     }
+    console.log(table_data.data.projects);
+    console.log(change[1] + table_data.project_offset);
     var project_id = table_data.data.projects[change[1] + table_data.project_offset].id;
     var week = new Week(table_data.year, change[0] + 1 ).isoWeek();
     APP.post(
@@ -145,12 +172,14 @@ APP.register_module(async function(){
     table_data.hot = new Handsontable(table_data.container[0], {
         data: [[]],
         rowHeaderWidth: 160,
+        licenseKey: 'non-commercial-and-evaluation',
         afterGetRowHeader: (col, TH) => {
             TH.className = 'left';
         },
         afterChange: function(changes, source) {
             console.log(source, changes);
             if(source === 'edit' || source === 'Autofill.fill'){
+                updateUtilization();
                 if(changes.length === 1){
                     send_update(changes[0]);
                 }
@@ -164,7 +193,7 @@ APP.register_module(async function(){
             return cellProperties;
         },
         columns: function(index){
-            return {
+            let data = {
                 type: 'numeric',
                 allowEmpty: false
             }
