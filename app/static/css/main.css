@@ -92,9 +92,26 @@
 }
 
 #team-content {
+    margin-top: 15px;
     width: 95vw;
     margin-left: auto;
     margin-right: auto;
+    height: 100%;
+}
+
+#team-page-sliders {
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.slider-label {
+    color: rgb(153, 153, 153);
+}
+
+.slider-label span:first-child {
+    display: inline-block;
+    width: 100px;
 }
 
 #bar-chart {
@@ -143,4 +160,59 @@
 #project-list{
     padding-left: 30px;
     display: none;
+}
+
+.handsontable .left {
+    text-align: left;
+}
+
+#schedule-content {
+    box-sizing: border-box;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    width: 80vw;
+    margin-left: auto;
+    margin-right: auto;
+    height: 100%;
+}
+
+#schedule-table {
+    height: 75vh;
+    overflow: hidden;
+}
+
+.schedule-buttons {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items:center;
+}
+
+.management-list{
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mdl-switch-custom {
+    position: relative;
+    z-index: 1;
+    vertical-align: middle;
+    display: inline-block;
+    box-sizing: border-box;
+    width: 30px;
+    height: 24px;
+    margin: 0 10px 0 10px;
+    padding: 0;
+    overflow: visible;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#fulldaylabel {
+    width: 55px;
+    margin-right: 10px;
 }

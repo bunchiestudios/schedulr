@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, g, request, url_for
 
 from dateutil.parser import parse as date_parse
 from isoweek import Week
-import secrets
+import secrets, datetime
 
 from app.helpers import api_error_helpers, session_helper, req_helper
 from app.models.util import (
@@ -10,6 +10,7 @@ from app.models.util import (
     team as team_util,
     join_token as join_token_util,
     schedule as schedule_util,
+    user as user_util,
 )
 
 from isoweek import Week
@@ -139,7 +140,7 @@ def team_get_projects(team_id):
     team = team_util.get_from_id(team_id)
 
     if team:
-        return jsonify([project.id for project in team.projects])
+        return jsonify([project.serialize() for project in team.projects])
 
     return api_error_helpers.item_not_found("team", "id", str(team_id))
 
@@ -230,3 +231,98 @@ def team_get_chart_data(team_id):
             for item in results
         ]
     )
+
+
+@bp.route("/<int:team_id>/kick", methods=["POST"])
+@req_helper.api_check_json("item_id")
+@session_helper.enforce_validate_token_api
+def team_user_remove(team_id: int, json_content):
+    team = team_util.get_from_id(team_id)
+
+    if not team:
+        return api_error_helpers.item_not_found("team", "id", str(team_id))
+
+    # User not admin of the team
+    if g.user.id != team.owner_id:
+        return api_error_helpers.not_authorized()
+
+    user = user_util.get_from_id(json_content["item_id"])
+
+    if not user:
+        return api_error_helpers.item_not_found(
+            "user", "id", str(json_content["item_id"])
+        )
+
+    # Target user does not belong to targeted team
+    if user.team.id != team_id:
+        return api_error_helpers.not_authorized()
+
+    schedule_util.clear_user_schedule(team, user)
+
+    user_util.remove_team(user.id)
+    return jsonify({"result": "ok"})
+
+
+@bp.route("/<int:team_id>/offday/add", methods=["POST"])
+@req_helper.api_check_json("date", "hours")
+@session_helper.enforce_validate_token_api
+def add_offday(team_id: int, json_content):
+    team = team_util.get_from_id(team_id)
+
+    if not team:
+        return api_error_helpers.item_not_found("team", "id", str(team_id))
+
+    # User not admin of the team
+    if g.user.id != team.owner_id:
+        return api_error_helpers.not_authorized()
+
+    try:
+        date = datetime.datetime.strptime(json_content["date"], "%Y-%m-%d").date()
+    except ValueError:
+        return api_error_helpers.invalid_body_arg(
+            f"Invalid date: {json_content['date']}"
+        )
+
+    try:
+        hours = int(json_content["hours"])
+    except ValueError:
+        return api_error_helpers.invalid_body_arg(
+            f"Invalid hours value: {json_content['hours']}"
+        )
+
+    if days_off_util.set_day_off(team.id, date, hours):
+        return jsonify({"result": "ok"})
+
+    return api_error_helpers.could_not_create(f"Could not register day off.")
+
+
+@bp.route("/<int:team_id>/offday/remove", methods=["POST"])
+@req_helper.api_check_json("item_id")
+@session_helper.enforce_validate_token_api
+def remove_offday(team_id: int, json_content):
+    team = team_util.get_from_id(team_id)
+
+    if not team:
+        return api_error_helpers.item_not_found("team", "id", str(team_id))
+
+    # User not admin of the team
+    if g.user.id != team.owner_id:
+        return api_error_helpers.not_authorized()
+
+    try:
+        date = datetime.datetime.strptime(json_content["item_id"], "%Y-%m-%d").date()
+    except ValueError:
+        return api_error_helpers.invalid_body_arg(
+            f"Invalid date: {json_content['item_id']}"
+        )
+
+    dayoff = days_off_util.get_from_team_date(team, date)
+
+    if dayoff is None:
+        return api_error_helpers.item_not_found(
+            "DayOff", "date", str(json_content["item_id"])
+        )
+
+    days_off_util.delete_day_off(dayoff)
+
+    return jsonify({"result": "ok"})

@@ -7,6 +7,7 @@ from app.models.util import (
     user as user_util,
     join_token as join_token_util,
     schedule as schedule_util,
+    team as team_util,
 )
 
 bp = Blueprint("api.user", __name__)
@@ -82,7 +83,50 @@ def join_team_token(json_content):
     )
 
 
-@bp.route("/register_hours", methods=["POST"])
+@bp.route("/register-many", methods=["POST"])
+@req_helper.api_check_json("project_id", "iso_week", "hours")
+@session_helper.enforce_validate_token_api
+def loh_many_hours(json_content):
+    if (
+        isinstance(json_content["iso_week"], list)
+        and isinstance(json_content["hours"], list)
+        and isinstance(json_content["project_id"], list)
+        and len(json_content["iso_week"]) == len(json_content["hours"])
+        and len(json_content["iso_week"]) == len(json_content["project_id"])
+    ):
+        responses = []
+        print(json_content["project_id"])
+        print(json_content["iso_week"])
+        print(json_content["hours"])
+        for project_id, wk, hours in zip(
+            json_content["project_id"], json_content["iso_week"], json_content["hours"]
+        ):
+            print(project_id, wk, hours)
+            try:
+                project_id = int(project_id)
+                wk = Week.fromstring(wk)
+                hours = int(hours)
+                assert hours >= 0
+            except:
+                responses.append({"success": False})
+                continue
+
+            sched = schedule_util.set_schedule(
+                g.user.id, project_id, wk.toordinal(), hours
+            )
+
+            if sched:
+                responses.append(sched)
+            else:
+                responses.append({"success": False})
+
+        return jsonify(responses)
+
+    else:
+        api_error_helpers.invalid_body_arg(["project_id", "iso_week", "hours"])
+
+
+@bp.route("/register", methods=["POST"])
 @req_helper.api_check_json("project_id", "iso_week", "hours")
 @session_helper.enforce_validate_token_api
 def log_hours(json_content):
@@ -98,13 +142,17 @@ def log_hours(json_content):
 
     try:
         hours = int(json_content["hours"])
+        assert hours >= 0
     except ValueError:
         return api_error_helpers.invalid_body_arg("hours")
+    except AssertionError:
+        return api_error_helpers.invalid_body_arg("hours")
 
+    # Returns serialized result
     sched = schedule_util.set_schedule(g.user.id, project_id, wk.toordinal(), hours)
 
     if sched:
-        return jsonify(sched.serialize())
+        return jsonify(sched)
 
     return api_error_helpers.could_not_create("schedule")
 
@@ -147,6 +195,9 @@ def get_schedule(user_id: int):
     if not user_util.get_from_id(user_id):
         return api_error_helpers.item_not_found("user", "id", user_id)
 
+    if g.user.id != user_id:
+        return api_error_helpers.not_authorized()
+
     year = request.args.get("year", default=None, type=int)
 
     if not year:
@@ -168,7 +219,6 @@ def get_schedule(user_id: int):
     schedule_dict = schedule_util.get_user_schedules(
         user_id, start_week.toordinal(), end_week.toordinal()
     )
-    print(schedule_dict)
 
     for week_project, schedule in schedule_dict.items():
         week_index = Week.fromordinal(week_project.week).week - 1
@@ -176,7 +226,10 @@ def get_schedule(user_id: int):
             project_index[week_project.project_id]
         ] = schedule.hours
 
+    work_hours = team_util.get_year_workhours(g.user.team.id, year)
+
     return jsonify(
         projects=list(map(lambda x: x.serialize(), user_projects)),
         schedule=full_schedule,
+        work_hours=work_hours,
     )

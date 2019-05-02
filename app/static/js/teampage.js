@@ -40,9 +40,16 @@ async function list_projects(){
         }
     );
     list_element.empty();
-    APP.team.projects.forEach(async function(project_id){
-        var project = await $.post(`/api/project/${project_id}`).promise();
-        var delbutton = `<a class="mdl-list__item-secondary-action pointer" onclick="project_request_delete(${project.id}, '${project.name}')"><i class="material-icons">delete</i></a>`;
+    APP.team.projects.forEach(async function(project){
+        var delbutton = `
+            <a class="mdl-list__item-secondary-action pointer" onclick="delete_item(event)">
+            <i  
+                class="material-icons"
+                data-id="${project.id}"
+                data-target="projects"
+                data-name="${project.name}"
+            >delete</i></a>
+        `;
 
         var element = $(`
         <div class="mdl-list__item">
@@ -59,7 +66,7 @@ async function list_projects(){
 }
 
 APP.register_module(async function(){
-    APP.team = await $.post('/api/me/team').promise();
+    //APP.team = await $.post('/api/me/team').promise();
     $('#get-invite-link').on('click', (event)=>{
         APP.toggle_drawer();
         APP.post(`/api/team/${APP.team.id}/join_token`, null, 
@@ -80,7 +87,6 @@ APP.register_module(async function(){
         });
     });
     $('#view-projects').on('click', async (event)=>{
-        console.log('WOOp');
         APP.toggle_drawer();
         list_projects();
     });

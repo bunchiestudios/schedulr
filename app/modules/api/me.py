@@ -46,3 +46,13 @@ def get_own_team_schedules():
 @session_helper.enforce_validate_token_api
 def get_own_schedule():
     return user_api.get_schedule(user_id=g.user.id)
+
+
+@bp.route("/team/kick", methods=["POST"])
+@req_helper.api_check_json("item_id")
+@session_helper.enforce_validate_token_api
+def team_kick(json_content):
+    team = g.user.team
+    # Ignore warning, second argument is added by decorators
+    # pylint: disable=no-value-for-parameter
+    return team_api.team_user_remove(team.id)

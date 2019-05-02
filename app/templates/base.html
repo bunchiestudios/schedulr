@@ -14,6 +14,7 @@
 
         <!-- JQuery  -->
         <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+        <script src="/static/libs/moment.js"></script>
 
         <!-- Favicon -->
         <link rel="shortcut icon" href="/static/favicon.png" type="image/x-icon">
@@ -39,9 +40,16 @@
                     <!-- Add spacer, to align navigation to the right -->
                     <div class="mdl-layout-spacer"></div>
                     <!-- Navigation. We hide it in small screens. -->
-                    <nav class="mdl-navigation mdl-layout--large-screen-only">
+                    <nav class="mdl-navigation">
                         {% if g.user %}
-                            <a class="mdl-navigation__link" >{{g.user.name}}</a>
+                            <a class="mdl-navigation__link" >
+                                {{g.user.name}}
+                                {% if g.user.team.owner_id == g.user.id %}
+                                    (Team Owner)
+                                {% else %}
+                                    (Team Member)
+                                {% endif %}
+                            </a>
                             <a class="mdl-navigation__link" id="logout" href="#">Logout</a>
                         {% else %}
                             <a class="mdl-navigation__link" href="auth/login">Login</a>
@@ -53,6 +61,7 @@
                 <div class="mdl-layout__drawer">
                 <span class="mdl-layout-title">{{sidebar.title}}</span>
                     <nav class="mdl-navigation">
+                        {% block sidebar_actions %}{% endblock %}
                         {% for item in sidebar.actions %}
                             <div class="mdl-navigation__link sidebar-item hvr-icon-forward pointer" 
                             {% if item.id %}
@@ -62,7 +71,6 @@
                                 <i class="fas fa-chevron-circle-right hvr-icon"></i>
                             </div>
                         {% endfor %}
-                        {% block sidebar_actions %}{% endblock %}
                     </nav>
                 </div>
             {% endif %}
@@ -82,6 +90,26 @@
                     <h2 class="mdl-card__title-text"></h2>
                 </div>
                 <div class="mdl-card__supporting-text">
+                </div>
+                <div id="chip-container">
+                    <span class="mdl-chip mdl-chip--deletable">
+                        <span class="mdl-chip__text">Deletable Chip</span>
+                        <button type="button" class="mdl-chip__action">
+                            <i id="CopyButton" class="material-icons">file_copy</i>
+                            <div class="mdl-tooltip" data-mdl-for="CopyButton">
+                                Copy
+                            </div>
+                        </button>
+                    </span>
+                    <div id="refresh-code" class="mdl-color-text--orange pointer"> Click here to replace with a new code. <i
+                            class="fas fa-sync-alt"></i></div>
+                </div>
+                <div id="project-list">
+                    <button class="mdl-button mdl-js-button mdl-button--primary" id="add-project-button">
+                        Add New Project
+                    </button>
+                    <div class="mdl-list">
+                    </div>
                 </div>
                 {% block modal_content %}{% endblock %}
                 <div class="mdl-card__menu">
