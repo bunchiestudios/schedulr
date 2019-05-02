@@ -4,15 +4,9 @@ from flask import Blueprint, render_template, g, url_for, redirect, session
 
 from datetime import datetime
 
-from app.helpers import (
-    session_helper,
-    date_helper
-)
+from app.helpers import session_helper, date_helper
 
-from app.models.util import( 
-    join_token as join_token_util,
-    days_off as days_off_util
-)
+from app.models.util import join_token as join_token_util, days_off as days_off_util
 
 bp = Blueprint("team", __name__)
 
@@ -20,8 +14,10 @@ bp = Blueprint("team", __name__)
 def get_actions(*, goto_base=True, goto_schedule=True):
     actions = []
 
-    if goto_base:     actions.append({"id": "goto-team-base", "text": "View Team"})
-    if goto_schedule: actions.append({"id": "goto-user-schedule", "text": "Edit My Schedule"})
+    if goto_base:
+        actions.append({"id": "goto-team-base", "text": "View Team"})
+    if goto_schedule:
+        actions.append({"id": "goto-user-schedule", "text": "Edit My Schedule"})
 
     actions.append({"id": "view-projects", "text": "View Projects"})
 
@@ -30,6 +26,7 @@ def get_actions(*, goto_base=True, goto_schedule=True):
         actions.append({"id": "manage-team", "text": "Manage Team"})
         actions.append({"id": "manage-workdays", "text": "Manage Work Days"})
     return actions
+
 
 @bp.route("/")
 @session_helper.enforce_validate_token
@@ -51,27 +48,29 @@ def manage_members():
     if not g.user.team:
         return redirect(url_for("team.join"))
     if g.user.team.owner_id != g.user.id:
-        return redirect(url_for('team.root'))
+        return redirect(url_for("team.root"))
     actions = get_actions()
     users = g.user.team.users
     print(users)
     member_list = {
-        'title': "Manage Team Members",
-        'items': users,
-        'target': 'users',
-        'icon': 'person'
+        "title": "Manage Team Members",
+        "items": users,
+        "target": "users",
+        "icon": "person",
     }
     return render_template(
         "managelist.html",
         title="Manage Team Members",
         script=["teampage.js", "list-delete.js"],
         sidebar={"title": "Team options", "actions": actions},
-        contentlist=member_list
+        contentlist=member_list,
     )
+
 
 @bp.route("/offdays")
 def offdays_root():
     return redirect(url_for("team.manage_offdays", year=str(datetime.now().year)))
+
 
 @bp.route("/offdays/<int:year>")
 @session_helper.enforce_validate_token
@@ -79,33 +78,35 @@ def manage_offdays(year):
     if not g.user.team:
         return redirect(url_for("team.join"))
     if g.user.team.owner_id != g.user.id:
-        return redirect(url_for('team.root'))
-    
+        return redirect(url_for("team.root"))
+
     actions = get_actions()
 
     items = days_off_util.get_days_off_by_year(g.user.team, year)
     print(items)
     for item in items:
-        setattr(item, 'name', 
-                date_helper.user_format(item.date) +
-                f" - {item.hours_off} hours"
+        setattr(
+            item,
+            "name",
+            date_helper.user_format(item.date) + f" - {item.hours_off} hours",
         )
-        setattr(item, 'id', item.date.isoformat())
+        setattr(item, "id", item.date.isoformat())
 
     member_list = {
-        'title': "Manage Team Off-days",
-        'target': 'offdays',
-        'items': items,
-        'year': year,
-        'icon': 'date_range'
+        "title": "Manage Team Off-days",
+        "target": "offdays",
+        "items": items,
+        "year": year,
+        "icon": "date_range",
     }
     return render_template(
         "offdays.html",
         title=g.user.team.name,
         script=["teampage.js", "list-delete.js", "offdays.js"],
         sidebar={"title": "Team options", "actions": actions},
-        contentlist=member_list
+        contentlist=member_list,
     )
+
 
 @bp.route("/schedule")
 @session_helper.enforce_validate_token

@@ -210,11 +210,12 @@ def clear_user_schedule(team: Team, user: User):
     """
     session = db.get_session()
 
-    results = session.query(Schedule).join(Project).filter(
-        Schedule.user_id == user.id,
-        Project.team_id == team.id
-    ).all()
+    results = (
+        session.query(Schedule)
+        .join(Project)
+        .filter(Schedule.user_id == user.id, Project.team_id == team.id)
+        .all()
+    )
     for item in results:
         session.delete(item)
     session.commit()
-

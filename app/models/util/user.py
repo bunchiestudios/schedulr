@@ -33,10 +33,10 @@ def remove_team(user_id: int) -> None:
 
     if not user:
         return None
-    
+
     user._teams = []
     session.commit()
-    
+
 
 def set_team(user_id: int, team_id: int) -> Optional[User]:
     session = db.get_session()

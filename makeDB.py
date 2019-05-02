@@ -9,20 +9,22 @@ from sqlalchemy import create_engine
 from app import models
 
 if len(sys.argv) != 3:
-    print(f"Usage:\npython {sys.argv[0]} string <db-connection-string>\npython {sys.argv[0]} file <path/to/config.file>")
+    print(
+        f"Usage:\npython {sys.argv[0]} string <db-connection-string>\npython {sys.argv[0]} file <path/to/config.file>"
+    )
     exit()
 
 db_string = None
 
-if sys.argv[1] == 'string':
+if sys.argv[1] == "string":
     db_string = sys.argv[2]
-elif sys.argv[1] == 'file':
-    with open(sys.argv[2], 'r') as f:
+elif sys.argv[1] == "file":
+    with open(sys.argv[2], "r") as f:
         confile = f.read()
     data = {}
-    exec(confile, {'__builtins__': None}, data)
-    if 'DB_STRING' in data:
-        db_string = data['DB_STRING']
+    exec(confile, {"__builtins__": None}, data)
+    if "DB_STRING" in data:
+        db_string = data["DB_STRING"]
     else:
         print(f"Config file does not declare DB_STRING")
 else:

@@ -34,24 +34,31 @@ def get_days_off(
 
     return query.all()
 
+
 def get_from_team_date(team: Team, date: datetime.date):
     session = db.get_session()
-    return session.query(DayOff).filter(
-        DayOff.team_id == team.id,
-        DayOff.date == date
-    ).one_or_none()
+    return (
+        session.query(DayOff)
+        .filter(DayOff.team_id == team.id, DayOff.date == date)
+        .one_or_none()
+    )
+
 
 def get_days_off_by_year(team: Team, year: int):
     session = db.get_session()
-    return session.query(DayOff).filter(
-        DayOff.team_id == team.id,
-        extract('year', DayOff.date) == year
-    ).order_by(DayOff.date).all()
+    return (
+        session.query(DayOff)
+        .filter(DayOff.team_id == team.id, extract("year", DayOff.date) == year)
+        .order_by(DayOff.date)
+        .all()
+    )
+
 
 def delete_day_off(dayoff: DayOff):
     session = db.get_session()
     session.delete(dayoff)
     session.commit()
+
 
 def set_day_off(team_id: int, date: datetime.date, hours_off: int) -> bool:
     """

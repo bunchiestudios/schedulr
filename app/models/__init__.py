@@ -98,7 +98,9 @@ class Project(Base):
     name = Column(String(250), nullable=False)
 
     team = relationship("Team", back_populates="projects")
-    schedules = relationship("Schedule", back_populates="project", cascade="delete, delete-orphan")
+    schedules = relationship(
+        "Schedule", back_populates="project", cascade="delete, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<Project(id={self.id}, name={self.name}, team_id={self.team_id})>"
@@ -145,9 +147,7 @@ class DayOff(Base):
 
     team = relationship("Team", back_populates="days_off")
 
-    __table_args__ = (
-        UniqueConstraint("team_id", "date", name="dayoff_team_date"),
-    )
+    __table_args__ = (UniqueConstraint("team_id", "date", name="dayoff_team_date"),)
 
     def serialize(self):
         return {

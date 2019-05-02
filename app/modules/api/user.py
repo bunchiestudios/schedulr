@@ -7,7 +7,7 @@ from app.models.util import (
     user as user_util,
     join_token as join_token_util,
     schedule as schedule_util,
-    team as team_util
+    team as team_util,
 )
 
 bp = Blueprint("api.user", __name__)
@@ -197,7 +197,7 @@ def get_schedule(user_id: int):
 
     if g.user.id != user_id:
         return api_error_helpers.not_authorized()
-    
+
     year = request.args.get("year", default=None, type=int)
 
     if not year:
@@ -227,9 +227,9 @@ def get_schedule(user_id: int):
         ] = schedule.hours
 
     work_hours = team_util.get_year_workhours(g.user.team.id, year)
-    
+
     return jsonify(
         projects=list(map(lambda x: x.serialize(), user_projects)),
         schedule=full_schedule,
-        work_hours=work_hours
+        work_hours=work_hours,
     )

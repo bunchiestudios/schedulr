@@ -67,7 +67,9 @@ def delete_project(json_content):
 
     project = project_util.get_project_by_id(json_content["item_id"])
     if project is None:
-        return api_error_helpers.item_not_found("Project", "id", str(json_content["item_id"]))
+        return api_error_helpers.item_not_found(
+            "Project", "id", str(json_content["item_id"])
+        )
 
     # User not admin of the team
     if g.user.id != project.team.owner_id:
